@@ -1,8 +1,5 @@
 
 --This line, and those below, will be ignored--
 
-A    GcovLinearizer
-A    GuitarPlayer
-A    svn-commit.tmp~
-A    GcovDepAnalyzer
-A    GuitarReader
+M    svn-commit.tmp~
+M    GuitarReader/Readme.txt
