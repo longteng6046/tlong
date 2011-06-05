@@ -97,8 +97,8 @@ for casename in cases:
 
     # generate report
 
-    os.system("./cobertura-report.sh --format html --datafile sers/" + serName
-              + ".f --destination reports/" + casename.strip() + " src/" )
+    # os.system("./cobertura-report.sh --format html --datafile sers/" + serName
+    #           + ".f --destination reports/" + casename.strip() + " src/" )
     os.system("./cobertura-report.sh --format xml --datafile sers/" + serName
               + ".f --destination reports/" + casename.strip() + " src/" )
 
