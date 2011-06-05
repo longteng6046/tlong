@@ -16,6 +16,15 @@ from mine import *
 #
 ########################################
 
+## control flags enable/disable functions.
+tcCheck = False # Check whether test cases under each directory are of
+                # the same name.
+                
+
+
+
+
+
 if len(sys.argv) == 1:
     print "Error."
     print "\tFormat: python ./newdiff.py dir1 dir2 dir3 ... dirn"
@@ -51,26 +60,27 @@ for item in dirList:
 
 # Check whether the test cases under each directory is the same
 
-compList = []
+if tcCheck == True:
+    compList = []
 
-for item in fileDict.keys():
-    files = fileDict[item].keys()
-    files.sort()
-    subList = []
-    for sItem in files:
-        casename = sItem.split('/')[-2:-1]
-        subList.append(casename)
-    compList.append(subList)
+    for item in fileDict.keys():
+        files = fileDict[item].keys()
+        files.sort()
+        subList = []
+        for sItem in files:
+            casename = sItem.split('/')[-2:-1]
+            subList.append(casename)
+        compList.append(subList)
 
-for i in range(0, len(compList)):
-    for j in range(i + 1, len(compList)):
-        # print "i:", i, "j", j
-        # print compList[i]
-        # print compList[j]
+    for i in range(0, len(compList)):
+        for j in range(i + 1, len(compList)):
+            # print "i:", i, "j", j
+            # print compList[i]
+            # print compList[j]
 
-        if compList[i] != compList[j]:
-            print "bala"
-            exit()
+            if compList[i] != compList[j]:
+                print "bala"
+                exit()
         
-    
+    print "Finished testcases name checking."    
         
