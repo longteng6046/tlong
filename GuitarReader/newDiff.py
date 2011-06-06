@@ -23,7 +23,7 @@ tcCheck = True # Check whether test cases under each directory are of
                 # the same name.
                 
 
-
+print "****** Caution: The parent directories holding test report sets should not be the same. ******"
 
 
 
@@ -95,37 +95,115 @@ if tcCheck == True:
     print "Finished testcases name checking."    
         
 
+##############################
+#
+# Clear up the dictionary name
+#
+##############################
 
+# print "---------- Test area ----------"
+
+
+dirs = fileDict.keys()
+tests = []
+for item in fileDict.keys():
+    tests = fileDict[item].keys()
+    break
+
+testSample = tests[0]
+baseDir = testSample.split('/')[:-3]
+baseDir = '/'.join(baseDir) + '/' # path to coverage.xml: baseDir + dirname + testname + 'coverage.xml'
+
+
+newFileDict = {}
+for item in tests:
+
+    item = item.split('/')[-2]
+    
+    tmpDict = {}
+    for sItem in dirs:
+        sItem = sItem.split('/')[-1]
+        # print sItem
+        tmpDict[sItem] = None
+    newFileDict[item] = tmpDict
+
+# for item in newFileDict:
+    # print item, newFileDict[item]
+# exit()    
 
 ##############################
 #
-# Read coverage.xml files
+# Read coverage.xml files, new
 #
 ##############################
-for item in fileDict:
-    for sItem in fileDict[item].keys(): # reaching each individual
+counter = 0
+
+for item in newFileDict:
+    counter += 1
+    print "... Processing test", counter
+    for sItem in newFileDict[item].keys(): # reaching each individual
                                         # coverage.xml file
         # print sItem
+        
+        path = baseDir + '/' + sItem + '/' + item + '/coverage.xml'
 
-        covFileLines = open(sItem, 'r')
-
-        sItem = sItem.split('/')[-2]
-        # print sItem
+        # print "Path: ", path
         # exit()
+        
+        covFileLines = open(path, 'r')
 
-        fileDict[item][sItem] = covFileProcess(covFileLines)
+        # print "item:", item, "sItem", sItem
+
+
+        newFileDict[item][sItem] = covFileProcess(covFileLines)
         covFileLines.close()
 
-        # for ssItem in fileDict[item][sItem].keys():
-        #     print "pkgName: ", ssItem
-        #     print "classes: "
-        #     classDict = fileDict[item][sItem][ssItem]
-        #     for i in classDict.keys():
-        #         print i, "lineCov:", classDict[i]["lineCov"], "branchCov:", classDict[i]["branchCov"]
-        
-        # exit()
 
 print "Coverage data collection finished."
+
+# for item in newFileDict:
+#     print "Test:", item
+#     print "Content:"
+#     for sItem in newFileDict[item]:
+#         print sItem, newFileDict[item][sItem]
+
+
+
+# exit()
+
+
+
+# ##############################
+# #
+# # Read coverage.xml files
+# #
+# ##############################
+# for item in fileDict:
+#     for sItem in fileDict[item].keys(): # reaching each individual
+#                                         # coverage.xml file
+#         # print sItem
+
+#         covFileLines = open(sItem, 'r')
+
+#         sItem = sItem.split('/')[-2]
+#         # print sItem
+#         # exit()
+
+#         fileDict[item][sItem] = covFileProcess(covFileLines)
+#         covFileLines.close()
+
+#         # for ssItem in fileDict[item][sItem].keys():
+#         #     print "pkgName: ", ssItem
+#         #     print "classes: "
+#         #     classDict = fileDict[item][sItem][ssItem]
+#         #     for i in classDict.keys():
+#         #         print i, "lineCov:", classDict[i]["lineCov"], "branchCov:", classDict[i]["branchCov"]
+        
+#         # exit()
+
+# print "Coverage data collection finished."
+
+
 
 
 ##############################
@@ -135,7 +213,7 @@ print "Coverage data collection finished."
 ##############################
 
 covDictFile = open("covDict.dic", 'w')
-pickle.dump(fileDict, covDictFile)
+pickle.dump(newFileDict, covDictFile)
 covDictFile.close()
 
 exit()
