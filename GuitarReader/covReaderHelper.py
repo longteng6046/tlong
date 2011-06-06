@@ -1,8 +1,8 @@
 ##################################################
 #
-# File: newDiffHelper.py
+# File: covReaderHelper.py
 # Description:
-#   Helper function for "newDiffHelper.py", containing function definitions
+#   Helper function for "covReader.py", containing function definitions
 #   and implementations.
 #
 ##################################################

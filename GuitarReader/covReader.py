@@ -1,8 +1,11 @@
 ##################################################
 #
-# File: newDiff.py
+# File: covReader
 # Description:
 #   A better-performance difference analysis tool.
+#    It reads converage.xml files in each test report,
+#    Then put them all in a dictionary, and save the
+#    dictionary to a file named "covDict.dic".
 #
 ##################################################
 
@@ -10,7 +13,7 @@ import sys
 import os
 import pickle
 from mine import *
-from newDiffHelper import *
+from covReaderHelper import *
 
 ########################################
 #
@@ -140,7 +143,8 @@ counter = 0
 
 for item in newFileDict:
     counter += 1
-    print "... Processing test", counter
+    if counter - counter / 10 * 10 == 0:
+        print "... Processing test", counter
     for sItem in newFileDict[item].keys(): # reaching each individual
                                         # coverage.xml file
         # print sItem
@@ -161,47 +165,6 @@ for item in newFileDict:
 
 print "Coverage data collection finished."
 
-# for item in newFileDict:
-#     print "Test:", item
-#     print "Content:"
-#     for sItem in newFileDict[item]:
-#         print sItem, newFileDict[item][sItem]
-
-
-
-# exit()
-
-
-
-# ##############################
-# #
-# # Read coverage.xml files
-# #
-# ##############################
-# for item in fileDict:
-#     for sItem in fileDict[item].keys(): # reaching each individual
-#                                         # coverage.xml file
-#         # print sItem
-
-#         covFileLines = open(sItem, 'r')
-
-#         sItem = sItem.split('/')[-2]
-#         # print sItem
-#         # exit()
-
-#         fileDict[item][sItem] = covFileProcess(covFileLines)
-#         covFileLines.close()
-
-#         # for ssItem in fileDict[item][sItem].keys():
-#         #     print "pkgName: ", ssItem
-#         #     print "classes: "
-#         #     classDict = fileDict[item][sItem][ssItem]
-#         #     for i in classDict.keys():
-#         #         print i, "lineCov:", classDict[i]["lineCov"], "branchCov:", classDict[i]["branchCov"]
-        
-#         # exit()
-
-# print "Coverage data collection finished."
 
 
 
@@ -212,29 +175,10 @@ print "Coverage data collection finished."
 #
 ##############################
 
+print "Begin to save info to the dictionary..."
+
 covDictFile = open("covDict.dic", 'w')
 pickle.dump(newFileDict, covDictFile)
 covDictFile.close()
 
-exit()
-
-
-# for item in fileDict[0][0]:
-    # numClass += len(fileDict[0][0][item])
-
-l = []
-
-for item in fileDict.keys():
-
-    for sItem in fileDict[item].keys():
-        numClass = 0 # Number of classes
-        for ssItem in fileDict[item][sItem].keys():
-            numClass += len(fileDict[item][sItem][ssItem])
-        l.append(numClass)
-
-for i in range(0, len(l) -1):
-    if l[i] != l[i+1]:
-        print "False"
-        exit()
-print "True"        
-        
+print "Finished saving."
