@@ -108,6 +108,11 @@ for item in fileDict:
         # print sItem
 
         covFileLines = open(sItem, 'r')
+
+        sItem = sItem.split('/')[-2]
+        # print sItem
+        # exit()
+
         fileDict[item][sItem] = covFileProcess(covFileLines)
         covFileLines.close()
 
