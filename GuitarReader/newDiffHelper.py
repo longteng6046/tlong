@@ -40,7 +40,7 @@ def covFileProcess(covFile):
             br_rate = float(re.match(r'.+branch-rate="(.+)" complexity.+', item).group(1))
             # print "class: ", className, "lineCov:", line_rate, "branchCov:", br_rate
             result[pkgName][className] = {}
-            result[pkgName][className]["lineCov"] = line_rate
-            result[pkgName][className]["branchCov"] = br_rate
+            result[pkgName][className]["l"] = line_rate
+            result[pkgName][className]["b"] = br_rate
 
     return result
