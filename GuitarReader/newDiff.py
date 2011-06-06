@@ -8,7 +8,9 @@
 
 import sys
 import os
+import pickle
 from mine import *
+from newDiffHelper import *
 
 ########################################
 #
@@ -17,7 +19,7 @@ from mine import *
 ########################################
 
 ## control flags enable/disable functions.
-tcCheck = False # Check whether test cases under each directory are of
+tcCheck = True # Check whether test cases under each directory are of
                 # the same name.
                 
 
@@ -37,7 +39,10 @@ dirList = []
 for i in range(1, len(sys.argv)):
     if os.path.exists(sys.argv[i]) == True:
         dirList.append(os.path.abspath(sys.argv[i]))
-
+    else:
+        print "Error, the following directory does not exits:\n\t", sys.argv[i]
+        sys.exit(1)
+        
 # printl(dirList)
 
 
@@ -45,6 +50,8 @@ for i in range(1, len(sys.argv)):
 # file dictionary of files under all directories in dirList
 
 fileDict = {} # fileDict = {dirList, {coverage.xml, {pkgname, {classFile, {covType, data}}}}}
+# print "dirList: ", dirList
+
 for item in dirList:
     testList = os.listdir(item)
     # printl(testList)
@@ -57,8 +64,11 @@ for item in dirList:
 
     fileDict[item] = subDict
 
-
+##############################
+#
 # Check whether the test cases under each directory is the same
+#
+##############################
 
 if tcCheck == True:
     compList = []
@@ -83,4 +93,65 @@ if tcCheck == True:
                 exit()
         
     print "Finished testcases name checking."    
+        
+
+
+
+##############################
+#
+# Read coverage.xml files
+#
+##############################
+for item in fileDict:
+    for sItem in fileDict[item].keys(): # reaching each individual
+                                        # coverage.xml file
+        # print sItem
+
+        covFileLines = open(sItem, 'r')
+        fileDict[item][sItem] = covFileProcess(covFileLines)
+        covFileLines.close()
+
+        # for ssItem in fileDict[item][sItem].keys():
+        #     print "pkgName: ", ssItem
+        #     print "classes: "
+        #     classDict = fileDict[item][sItem][ssItem]
+        #     for i in classDict.keys():
+        #         print i, "lineCov:", classDict[i]["lineCov"], "branchCov:", classDict[i]["branchCov"]
+        
+        # exit()
+
+print "Coverage data collection finished."
+
+
+##############################
+#
+# Save the coverage dictionary to a file
+#
+##############################
+
+covDictFile = open("covDict.dic", 'w')
+pickle.dump(fileDict, covDictFile)
+covDictFile.close()
+
+exit()
+
+
+# for item in fileDict[0][0]:
+    # numClass += len(fileDict[0][0][item])
+
+l = []
+
+for item in fileDict.keys():
+
+    for sItem in fileDict[item].keys():
+        numClass = 0 # Number of classes
+        for ssItem in fileDict[item][sItem].keys():
+            numClass += len(fileDict[item][sItem][ssItem])
+        l.append(numClass)
+
+for i in range(0, len(l) -1):
+    if l[i] != l[i+1]:
+        print "False"
+        exit()
+print "True"        
         
