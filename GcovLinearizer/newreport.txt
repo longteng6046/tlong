@@ -1,0 +1,201 @@
+Error: duplicated source file:
+Filename:  /home/tlong/Dropbox/func_test/openmpi_result/infofiles/petsc.info
+Source file name:  /home/tlong/workspace/openmp/openmpi-1.4.3/ompi/datatype/datatype_pack.c
+Error: duplicated source file:
+Filename:  /home/tlong/Dropbox/func_test/openmpi_result/infofiles/petsc.info
+Source file name:  /home/tlong/workspace/openmp/openmpi-1.4.3/ompi/datatype/datatype_unpack.c
+/usr/include/c++/4.4/iostream
+Error: wired filename...
+/home/tlong/workspace/openmp/openmpi-1.4.3/ompi/mpi/cxx/win.cc
+Error: wired filename...
+/usr/include/c++/4.4/iostream
+Error: wired filename...
+/home/tlong/workspace/openmp/openmpi-1.4.3/ompi/mpi/cxx/intercepts.cc
+Error: wired filename...
+/usr/include/c++/4.4/iostream
+Error: wired filename...
+/home/tlong/workspace/openmp/openmpi-1.4.3/ompi/mpi/cxx/datatype.cc
+Error: wired filename...
+/usr/include/c++/4.4/iostream
+Error: wired filename...
+/home/tlong/workspace/openmp/openmpi-1.4.3/ompi/mpi/cxx/file.cc
+Error: wired filename...
+/usr/include/c++/4.4/iostream
+Error: wired filename...
+/home/tlong/workspace/openmp/openmpi-1.4.3/ompi/mpi/cxx/mpicxx.cc
+Error: wired filename...
+/usr/include/c++/4.4/iostream
+Error: wired filename...
+/home/tlong/workspace/openmp/openmpi-1.4.3/ompi/mpi/cxx/comm.cc
+Error: wired filename...
+Error: duplicated source file:
+Filename:  /home/tlong/Dropbox/func_test/openmpi_result/infofiles/freepooma.info
+Source file name:  /home/tlong/workspace/openmp/openmpi-1.4.3/ompi/datatype/datatype_pack.c
+Error: duplicated source file:
+Filename:  /home/tlong/Dropbox/func_test/openmpi_result/infofiles/freepooma.info
+Source file name:  /home/tlong/workspace/openmp/openmpi-1.4.3/ompi/datatype/datatype_unpack.c
+Error: duplicated source file:
+Filename:  /home/tlong/Dropbox/func_test/openmpi_result/infofiles/mpe.info
+Source file name:  /home/tlong/workspace/openmp/openmpi-1.4.3/ompi/datatype/datatype_pack.c
+Error: duplicated source file:
+Filename:  /home/tlong/Dropbox/func_test/openmpi_result/infofiles/mpe.info
+Source file name:  /home/tlong/workspace/openmp/openmpi-1.4.3/ompi/datatype/datatype_unpack.c
+Error: duplicated source file:
+Filename:  /home/tlong/Dropbox/func_test/openmpi_result/infofiles/z_self.info
+Source file name:  /home/tlong/workspace/openmp/openmpi-1.4.3/ompi/datatype/datatype_pack.c
+Error: duplicated source file:
+Filename:  /home/tlong/Dropbox/func_test/openmpi_result/infofiles/z_self.info
+Source file name:  /home/tlong/workspace/openmp/openmpi-1.4.3/ompi/datatype/datatype_unpack.c
+Error: duplicated source file:
+Filename:  /home/tlong/Dropbox/func_test/openmpi_result/infofiles/parMetis.info
+Source file name:  /home/tlong/workspace/openmp/openmpi-1.4.3/ompi/datatype/datatype_pack.c
+Error: duplicated source file:
+Filename:  /home/tlong/Dropbox/func_test/openmpi_result/infofiles/parMetis.info
+Source file name:  /home/tlong/workspace/openmp/openmpi-1.4.3/ompi/datatype/datatype_unpack.c
+/home/tlong/Dropbox/func_test/openmpi_result/infofiles/petsc.info
+/home/tlong/Dropbox/func_test/openmpi_result/infofiles/freepooma.info
+/home/tlong/Dropbox/func_test/openmpi_result/infofiles/parMetis.info
+/home/tlong/Dropbox/func_test/openmpi_result/infofiles/mpe.info
+/home/tlong/Dropbox/func_test/openmpi_result/infofiles/z_self.info
+
+##############################
+#
+# 0. What is the statistics of the apr package?
+#
+##############################
+
+Number of lines:  63758
+Number of functions:  4154
+Number of branches:  45132
+
+##############################
+#
+# 1. What is the coverage of the unit test of apr?
+#
+##############################
+
+line_cov: 1.18730198563%
+fun_cov: 1.08329321136%
+br_cov: 0.830896038288%
+
+##############################
+#
+# 2. What is the coverage brought to apr by each individual upper-level package?
+#
+##############################
+
+line_cov:
+freepooma : 19.3403180777%
+mpe : 26.5833307193%
+parMetis : 27.1181655635%
+petsc : 26.3841400295%
+	Sum:  99.42595439%
+
+fun_cov:
+freepooma : 25.7342320655%
+mpe : 33.2691381801%
+parMetis : 33.0765527203%
+petsc : 33.317284545%
+	Sum:  125.397207511%
+
+br_cov:
+freepooma : 11.3622263582%
+mpe : 16.442878667%
+parMetis : 16.6533723301%
+petsc : 16.2944252415%
+	Sum:  60.7529025968%
+
+##############################
+#
+# 3. What is the extra coverage brought to apr by each individual upper-leve package?
+#
+##############################
+
+line_cov:
+freepooma : 18.3976912701%
+mpe : 25.5560086577%
+parMetis : 26.0657486119%
+petsc : 25.3568179679%
+	Sum:  95.3762665077%
+
+fun_cov:
+freepooma : 24.9157438613%
+mpe : 32.354357246%
+parMetis : 32.1376986038%
+petsc : 32.402503611%
+	Sum:  121.810303322%
+
+br_cov:
+freepooma : 10.7019409731%
+mpe : 15.733847381%
+parMetis : 15.9199680936%
+petsc : 15.5853939555%
+	Sum:  57.9411504033%
+
+##############################
+#
+# 4. What is the overall coverage brought to apr by the 4 upper-level packages?
+#
+##############################
+
+line_cov: 29.2590733712%
+fun_cov: 36.0616273471%
+br_cov: 18.5433838518%
+
+##############################
+#
+# 5. What is the extra coverage brought to apr by all upper-level packages together?
+#
+##############################
+
+line_cov: 28.2066564196%
+fun_cov: 35.1227732306%
+br_cov: 17.8099796154%
+
+##############################
+#
+# 6. What is the overlap of coverage from the 4 upper-level packages?
+#
+##############################
+
+70.7409266288% lines are covered by 0 packages.
+3.04275541893% lines are covered by 1 packages.
+1.8115373757% lines are covered by 2 packages.
+6.22823802503% lines are covered by 3 packages.
+18.1765425515% lines are covered by 4 packages.
+
+63.9383726529% functions are covered by 0 packages.
+3.29802599904% functions are covered by 1 packages.
+1.85363505055% functions are covered by 2 packages.
+6.25902744343% functions are covered by 3 packages.
+24.6509388541% functions are covered by 4 packages.
+
+81.4566161482% branches are covered by 0 packages.
+2.47939377825% branches are covered by 1 packages.
+1.30284498804% branches are covered by 2 packages.
+4.16112735974% branches are covered by 3 packages.
+10.6000177258% branches are covered by 4 packages.
+
+##############################
+#
+# 7. What is the overlap of the extra coverage from the 4 upper-level packages?
+#
+##############################
+
+70.6060415948% lines are covered by 0 packages.
+3.01766052887% lines are covered by 1 packages.
+1.8115373757% lines are covered by 2 packages.
+6.1435427711% lines are covered by 3 packages.
+17.2339157439% lines are covered by 4 packages.
+
+63.793933558% functions are covered by 0 packages.
+3.27395281656% functions are covered by 1 packages.
+1.85363505055% functions are covered by 2 packages.
+6.16273471353% functions are covered by 3 packages.
+23.83245065% functions are covered by 4 packages.
+
+81.3591243464% branches are covered by 0 packages.
+2.45502082779% branches are covered by 1 packages.
+1.30284498804% branches are covered by 2 packages.
+4.11238145883% branches are covered by 3 packages.
+9.93973234069% branches are covered by 4 packages.
