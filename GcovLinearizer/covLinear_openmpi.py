@@ -101,15 +101,21 @@ for item in contentList:
                 else:
                     print "Error: duplicated source file:"
                     print "Filename: ", item
-                    print "Source file name: ", source
-                    sys.exit(1)
-
+                    print "Source file name: ", sourceFile
+                    # sys.exit(1)
+                    continue
             elif sourceFile.endswith('.h'):
                 isCFile = False
                 continue
+            elif sourceFile.endswith('.l'): # lex
+                isCFile = False
+                continue
             else:
+                print sourceFile
                 print "Error: wired filename..."
-                sys.exit(1)
+                isCFile = False
+                continue
+                # sys.exit(1)
 
         # if it is currently a '.h' file, then skip the current line
         elif isCFile == False:
@@ -125,6 +131,13 @@ for item in contentList:
         elif line.startswith('FNDA:'):
             funName = line.split(',')[1]
             hitTimes = line.split(',')[0].split(':')[1]
+            # print "item:", item, "sourceFile:", sourceFile
+            # print "funName:", funName
+
+            # gcov bug, sometimes the function name will not be
+            # detected, but this hitting record will be recorded.
+            if funName not in funCovData[item][sourceFile]: 
+                funCovData[item][sourceFile][funName] = None
             if funCovData[item][sourceFile][funName] == None:
                 funCovData[item][sourceFile][funName] = int(hitTimes)
             else:
@@ -214,7 +227,10 @@ brStat = {}
 for item in lineCovData.keys():
     print item
 
-sourceList = lineCovData['/home/tlong/Dropbox/repository/coverage_linearize/files/httpd_flood.info']
+
+example_info_file = "/home/tlong/Dropbox/func_test/openmpi_result/infofiles/freepooma.info"
+
+sourceList = lineCovData[example_info_file]
 
 
 # print infoList
@@ -228,7 +244,12 @@ for item in sourceList:
         for infoFile in infoList:
             if 'self' not in infoFile:
                 # print "infoFile", infoFile
-                if sItem not in lineCovData[infoFile][item]:
+                # print "infoFile:", infoFile
+                # print "item:", item
+
+                # the file is not covered at all
+                if (item not in lineCovData[infoFile]) or \
+                       sItem not in lineCovData[infoFile][item]:
                     continue
                 val += lineCovData[infoFile][item][sItem]
                 if lineCovData[infoFile][item][sItem] != 0:
@@ -238,7 +259,7 @@ for item in sourceList:
         lineStat[key] = val
         lineStat_single[key] = counter
 
-sourceList = funCovData['/home/tlong/Dropbox/repository/coverage_linearize/files/httpd_flood.info']
+sourceList = funCovData[example_info_file]
 
 for item in sourceList:
     for sItem in sourceList[item]:
@@ -248,7 +269,10 @@ for item in sourceList:
 
         for infoFile in infoList:
             if 'self' not in infoFile:
-                # print "infoFile", infoFile
+                if item not in funCovData[infoFile] or \
+                       sItem not in funCovData[infoFile][item]:
+                    continue
+                
                 val += funCovData[infoFile][item][sItem]
                 if funCovData[infoFile][item][sItem] != 0:
                     counter += 1
@@ -261,7 +285,7 @@ for item in sourceList:
         #     funStat_single[key] = 1
 
 
-sourceList = brCovData['/home/tlong/Dropbox/repository/coverage_linearize/files/httpd_flood.info']
+sourceList = brCovData[example_info_file]
 
 for item in sourceList:
     for sItem in sourceList[item]:
@@ -272,7 +296,8 @@ for item in sourceList:
         for infoFile in infoList:
             if 'self' not in infoFile:
                 # print "infoFile", infoFile
-                if sItem not in brCovData[infoFile][item]:
+                if item not in brCovData[infoFile] or \
+                       sItem not in brCovData[infoFile][item]:
                     continue
                 val += brCovData[infoFile][item][sItem]
                 if brCovData[infoFile][item][sItem] != 0:
@@ -330,7 +355,7 @@ print r'''
 ##############################
 '''
 
-unitName = '/home/tlong/Dropbox/repository/coverage_linearize/files/z_self.info'
+unitName = '/home/tlong/Dropbox/func_test/openmpi_result/infofiles/z_self.info'
 
 
 
@@ -446,9 +471,11 @@ for item in infoList:
         counter = 0
         for sItem in lineCovData[item]:
             for ssItem in lineCovData[item][sItem]:
+                # print "sItem:", sItem
                 if lineCovData[item][sItem][ssItem] != 0 and \
-                       (lineCovData[unitName][sItem][ssItem] == 0 or \
-                        ssItem not in lineCovData[unitName][sItem]):
+                       (sItem not in lineCovData[unitName] or \
+                        ssItem not in lineCovData[unitName][sItem] or \
+                        lineCovData[unitName][sItem][ssItem] == 0):
                     counter += 1
         fileName = item.split('/')[-1].split('.')[0]
         print fileName, ':', str(float(counter) / float(totalLine) * 100) + '%'
@@ -463,7 +490,8 @@ for item in infoList:
         for sItem in funCovData[item]:
             for ssItem in funCovData[item][sItem]:
                 if funCovData[item][sItem][ssItem] != 0 and \
-                       (funCovData[unitName][sItem][ssItem] == 0 or \
+                       (sItem not in funCovData[unitName] or \
+                        funCovData[unitName][sItem][ssItem] == 0 or \
                         ssItem not in funCovData[unitName][sItem]):
                     counter += 1
         fileName = item.split('/')[-1].split('.')[0]
@@ -479,7 +507,8 @@ for item in infoList:
         for sItem in brCovData[item]:
             for ssItem in brCovData[item][sItem]:
                 if brCovData[item][sItem][ssItem] != 0 and \
-                       (brCovData[unitName][sItem][ssItem] == 0 or \
+                       (sItem not in brCovData[unitName] or \
+                        brCovData[unitName][sItem][ssItem] == 0 or \
                         ssItem not in brCovData[unitName][sItem]):
                     counter += 1
         fileName = item.split('/')[-1].split('.')[0]
@@ -527,21 +556,24 @@ print r'''
 counter = 0
 for item in lineStat:
     if lineStat[item] != 0 and \
-           lineCovData[unitName][item[0]][item[1]] == 0:
+           (item[0] not in lineCovData[unitName] or \
+            lineCovData[unitName][item[0]][item[1]] == 0):
         counter += 1
 print "line_cov:", str(float(counter) / float(totalLine) * 100) + '%'
 
 counter = 0
 for item in funStat:
     if funStat[item] != 0 and \
-           funCovData[unitName][item[0]][item[1]] == 0:
+           (item[0] not in funCovData[unitName] or \
+            funCovData[unitName][item[0]][item[1]] == 0):
         counter += 1
 print "fun_cov:", str(float(counter) / float(totalFun) * 100) + '%'
 
 counter = 0
 for item in brStat:
     if brStat[item] != 0 and \
-           brCovData[unitName][item[0]][item[1]] == 0:
+           (item[0] not in brCovData[unitName] or \
+            brCovData[unitName][item[0]][item[1]] == 0):
         counter += 1
 print "br_cov:", str(float(counter) / float(totalBr) * 100) + '%'
 
@@ -582,76 +614,76 @@ for i in range(0, len(infoList)):
     print str(cov * 100) + '%', "branches are covered by", i, "packages."
 
 
-print r'''
-##############################
-#
-# 6. What is the overlap of coverage from the 4 upper-level packages?
-#
-##############################
-'''
+# print r'''
+# ##############################
+# #
+# # 6. What is the overlap of coverage from the 4 upper-level packages?
+# #
+# ##############################
+# '''
 
-for i in range(0, len(infoList)):
-    counter = 0
-    for item in lineStat_single:
-        if lineStat_single[item] == i:
-            counter += 1
-    cov = float(counter) / float(totalLine)
-    print str(cov * 100) + '%', "lines are covered by", i, "packages."
+# for i in range(0, len(infoList)):
+#     counter = 0
+#     for item in lineStat_single:
+#         if lineStat_single[item] == i:
+#             counter += 1
+#     cov = float(counter) / float(totalLine)
+#     print str(cov * 100) + '%', "lines are covered by", i, "packages."
 
-print ''
-for i in range(0, len(infoList)):
-    counter = 0
-    for item in funStat_single:
-        if funStat_single[item] == i:
-            counter += 1
-    cov = float(counter) / float(totalFun)
-    print str(cov * 100) + '%', "functions are covered by", i, "packages."
-
-
-print ''
-for i in range(0, len(infoList)):
-    counter = 0
-    for item in brStat_single:
-        if brStat_single[item] == i:
-            counter += 1
-    cov = float(counter) / float(totalBr)
-    print str(cov * 100) + '%', "branches are covered by", i, "packages."
+# print ''
+# for i in range(0, len(infoList)):
+#     counter = 0
+#     for item in funStat_single:
+#         if funStat_single[item] == i:
+#             counter += 1
+#     cov = float(counter) / float(totalFun)
+#     print str(cov * 100) + '%', "functions are covered by", i, "packages."
 
 
-print r'''
-##############################
-#
-# 6. What is the overlap of coverage from the 4 upper-level packages?
-#
-##############################
-'''
-
-for i in range(0, len(infoList)):
-    counter = 0
-    for item in lineStat_single:
-        if lineStat_single[item] == i:
-            counter += 1
-    cov = float(counter) / float(totalLine)
-    print str(cov * 100) + '%', "lines are covered by", i, "packages."
-
-print ''
-for i in range(0, len(infoList)):
-    counter = 0
-    for item in funStat_single:
-        if funStat_single[item] == i:
-            counter += 1
-    cov = float(counter) / float(totalFun)
-    print str(cov * 100) + '%', "functions are covered by", i, "packages."
+# print ''
+# for i in range(0, len(infoList)):
+#     counter = 0
+#     for item in brStat_single:
+#         if brStat_single[item] == i:
+#             counter += 1
+#     cov = float(counter) / float(totalBr)
+#     print str(cov * 100) + '%', "branches are covered by", i, "packages."
 
 
-print ''
-for i in range(0, len(infoList)):
-    counter = 0
-    for item in brStat_single:
-        if brStat_single[item] == i:
-            counter += 1
-    cov = float(counter) / float(totalBr)
-    print str(cov * 100) + '%', "branches are covered by", i, "packages."
+# print r'''
+# ##############################
+# #
+# # 6. What is the overlap of coverage from the 4 upper-level packages?
+# #
+# ##############################
+# '''
+
+# for i in range(0, len(infoList)):
+#     counter = 0
+#     for item in lineStat_single:
+#         if lineStat_single[item] == i:
+#             counter += 1
+#     cov = float(counter) / float(totalLine)
+#     print str(cov * 100) + '%', "lines are covered by", i, "packages."
+
+# print ''
+# for i in range(0, len(infoList)):
+#     counter = 0
+#     for item in funStat_single:
+#         if funStat_single[item] == i:
+#             counter += 1
+#     cov = float(counter) / float(totalFun)
+#     print str(cov * 100) + '%', "functions are covered by", i, "packages."
+
+
+# print ''
+# for i in range(0, len(infoList)):
+#     counter = 0
+#     for item in brStat_single:
+#         if brStat_single[item] == i:
+#             counter += 1
+#     cov = float(counter) / float(totalBr)
+#     print str(cov * 100) + '%', "branches are covered by", i, "packages."
 
 
 
@@ -668,7 +700,8 @@ for i in range(0, len(infoList)):
     counter = 0
     for item in lineStat_single:
         if lineStat_single[item] == i and \
-               lineCovData[unitName][item[0]][item[1]] == 0:
+               (item[0] not in lineCovData[unitName] or \
+                lineCovData[unitName][item[0]][item[1]] == 0):
             counter += 1
     cov = float(counter) / float(totalLine)
     print str(cov * 100) + '%', "lines are covered by", i, "packages."
@@ -678,7 +711,8 @@ for i in range(0, len(infoList)):
     counter = 0
     for item in funStat_single:
         if funStat_single[item] == i and \
-               funCovData[unitName][item[0]][item[1]] == 0:
+               (item[0] not in funCovData[unitName] or \
+                funCovData[unitName][item[0]][item[1]] == 0):
             counter += 1
     cov = float(counter) / float(totalFun)
     print str(cov * 100) + '%', "functions are covered by", i, "packages."
@@ -689,7 +723,8 @@ for i in range(0, len(infoList)):
     counter = 0
     for item in brStat_single:
         if brStat_single[item] == i and \
-               brCovData[unitName][item[0]][item[1]] == 0:
+               (item[0] not in brCovData[unitName] or \
+                brCovData[unitName][item[0]][item[1]] == 0):
             counter += 1
     cov = float(counter) / float(totalBr)
     print str(cov * 100) + '%', "branches are covered by", i, "packages."
