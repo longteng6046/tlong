@@ -1,0 +1,147 @@
+/home/tlong/Dropbox/research/coverage_study/workspace/info_files_apr/httpd_flood.info
+/home/tlong/Dropbox/research/coverage_study/workspace/info_files_apr/z_self.info
+/home/tlong/Dropbox/research/coverage_study/workspace/info_files_apr/managelogs.info
+/home/tlong/Dropbox/research/coverage_study/workspace/info_files_apr/svn.info
+/home/tlong/Dropbox/research/coverage_study/workspace/info_files_apr/serf.info
+
+##############################
+#
+# 0. What is the statistics of the apr package?
+#
+##############################
+
+Number of lines:  7143
+Number of functions:  587
+Number of branches:  4502
+
+##############################
+#
+# 1. What is the coverage of the unit test of apr?
+#
+##############################
+
+line_cov: 59.2188156237%
+fun_cov: 66.6098807496%
+br_cov: 42.1146157263%
+
+##############################
+#
+# 2. What is the coverage brought to apr by each individual upper-level package?
+#
+##############################
+
+line_cov:
+httpd_flood : 11.9977600448%
+managelogs : 12.9077418452%
+serf : 14.993700126%
+svn : 29.3154136917%
+	Sum:  69.2146157077%
+
+fun_cov:
+httpd_flood : 14.3100511073%
+managelogs : 14.139693356%
+serf : 17.0357751278%
+svn : 32.1976149915%
+	Sum:  77.6831345826%
+
+br_cov:
+httpd_flood : 6.81919147046%
+managelogs : 8.95157707685%
+serf : 8.66281652599%
+svn : 22.4566859174%
+	Sum:  46.8902709907%
+
+##############################
+#
+# 3. What is the extra coverage brought to apr by each individual upper-leve package?
+#
+##############################
+
+line_cov:
+httpd_flood : 0.391992160157%
+managelogs : 1.16197676046%
+serf : 0.867982640347%
+svn : 3.94792104158%
+	Sum:  6.36987260255%
+
+fun_cov:
+httpd_flood : 0.511073253833%
+managelogs : 1.19250425894%
+serf : 1.36286201022%
+svn : 4.42930153322%
+	Sum:  7.49574105622%
+
+br_cov:
+httpd_flood : 0.310972900933%
+managelogs : 1.24389160373%
+serf : 0.621945801866%
+svn : 5.13105286539%
+	Sum:  7.30786317192%
+
+##############################
+#
+# 4. What is the overall coverage brought to apr by the 4 upper-level packages?
+#
+##############################
+
+line_cov: 36.3712725745%
+fun_cov: 41.0562180579%
+br_cov: 27.5211017326%
+
+##############################
+#
+# 5. What is the extra coverage brought to apr by all upper-level packages together?
+#
+##############################
+
+line_cov: 5.19389612208%
+fun_cov: 6.30323679727%
+br_cov: 6.21945801866%
+
+##############################
+#
+# 6. What is the overlap of coverage from the 4 upper-level packages?
+#
+##############################
+
+63.6287274255% lines are covered by 0 packages.
+18.2976340473% lines are covered by 1 packages.
+8.94582108358% lines are covered by 2 packages.
+3.48593028139% lines are covered by 3 packages.
+5.64188716226% lines are covered by 4 packages.
+
+58.9437819421% functions are covered by 0 packages.
+20.7836456559% functions are covered by 1 packages.
+10.0511073254% functions are covered by 2 packages.
+4.08858603066% functions are covered by 3 packages.
+6.132879046% functions are covered by 4 packages.
+
+72.4788982674% branches are covered by 0 packages.
+16.0595290982% branches are covered by 1 packages.
+6.75255442026% branches are covered by 2 packages.
+1.51043980453% branches are covered by 3 packages.
+3.1985784096% branches are covered by 4 packages.
+
+##############################
+#
+# 7. What is the overlap of the extra coverage from the 4 upper-level packages?
+#
+##############################
+
+35.5872882542% lines are covered by 0 packages.
+4.14391712166% lines are covered by 1 packages.
+0.92398152037% lines are covered by 2 packages.
+0.12599748005% lines are covered by 3 packages.
+0.0% lines are covered by 4 packages.
+
+27.0868824532% functions are covered by 0 packages.
+5.28109028961% functions are covered by 1 packages.
+0.851788756388% functions are covered by 2 packages.
+0.170357751278% functions are covered by 3 packages.
+0.0% functions are covered by 4 packages.
+
+51.665926255% branches are covered by 0 packages.
+5.19768991559% branches are covered by 1 packages.
+0.955131052865% branches are covered by 2 packages.
+0.0666370501999% branches are covered by 3 packages.
+0.0% branches are covered by 4 packages.

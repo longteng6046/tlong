@@ -1,8 +1,9 @@
 ##############################
 #
-# File: covLinear.py
+# File: covLinear_apr.py
 # Function: linearlize and compare the coverage of the same package.
-#
+# Desciption:
+#   specified to apr info file sets, code already obsolete.
 ##############################
 
 import sys
@@ -214,8 +215,8 @@ brStat = {}
 for item in lineCovData.keys():
     print item
 
-sourceList = lineCovData['/home/tlong/Dropbox/repository/coverage_linearize/files/httpd_flood.info']
-
+# sourceList = lineCovData['/home/tlong/Dropbox/repository/coverage_linearize/files/httpd_flood.info']
+sourceList = lineCovData[fileDir + '/httpd_flood.info']
 
 # print infoList
 
@@ -238,7 +239,9 @@ for item in sourceList:
         lineStat[key] = val
         lineStat_single[key] = counter
 
-sourceList = funCovData['/home/tlong/Dropbox/repository/coverage_linearize/files/httpd_flood.info']
+
+# sourceList = funCovData['/home/tlong/Dropbox/repository/coverage_linearize/files/httpd_flood.info']
+sourceList = funCovData[fileDir + '/httpd_flood.info']
 
 for item in sourceList:
     for sItem in sourceList[item]:
@@ -261,7 +264,7 @@ for item in sourceList:
         #     funStat_single[key] = 1
 
 
-sourceList = brCovData['/home/tlong/Dropbox/repository/coverage_linearize/files/httpd_flood.info']
+sourceList = brCovData[fileDir + '/httpd_flood.info']
 
 for item in sourceList:
     for sItem in sourceList[item]:
@@ -330,8 +333,8 @@ print r'''
 ##############################
 '''
 
-unitName = '/home/tlong/Dropbox/repository/coverage_linearize/files/z_self.info'
-
+# unitName = '/home/tlong/Dropbox/repository/coverage_linearize/files/z_self.info'
+unitName = fileDir + '/z_self.info'
 
 
 subLineCov = lineCovData[unitName]
