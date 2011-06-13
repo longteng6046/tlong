@@ -1,4 +1,4 @@
-##############################
+
 #
 # File: covDist.py
 # Description:
@@ -11,6 +11,7 @@
 import sys
 import os
 
+from covDisthelper import *
 
 ##############################
 #
@@ -328,59 +329,197 @@ for item in sourceList:
 
 
 
-########################################
-#
-# Data analysis part
-#
-#  Method:(for line)
-#    1. get a dictionary of {sourcefile, {line#, bool}} for each case,
-#    2. make an overlap(dict1, dict2, ...) function
-#    3. make a distribution zoom/display function.
-#    4. Make a comparison function.
-#
-########################################
-
-def multL(covList):
-    None
-
-def multB(covList):
-    None
-    
-def dist(covDict, level):
-    None
-
-def comp(covDict1, covDict2):
-    None
-
-
-
-
-
-
-
-
 fileNameList = lineCovData.keys()
 l2 = brCovData.keys()
-
 if fileNameList != l2:
     print "Shit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     exit()
 
-print fileNameList
+fileNameList.sort()
 
-singleDictSetL = [] # line cov single dictionaries
-for item in lineCovData:
-    singleDictSetL.append(item)
+print "\n---------- The list of coverage files: ----------"
+print  "*************************************************"
+for item in fileNameList:
+    print item
+print  "*************************************************\n"
 
 
-multiDictSetL = multL(singleDictSetL)
 
 
-singleDictSetB = []
 
-for item in brCovData:
-    singleDictSetB.append(item)
+# print r'''
+# ########################################
+# #
+# # 0. Distribution for single tests -- file(all five .info)
+# #
+# ########################################
+# '''
 
-multiDictSetB = multB(singleDictSetB)    
+
+
+
+
+# print r'''
+# ########################################
+# #
+# # 1. Distribution for single tests -- directory(all five .info)
+# #
+# ########################################
+# '''
+
+# for item in fileNameList:
+#     print "info file:", item
+    
+#     covRateListL = fileCovL(lineCovData[item])
+#     covRateListB = fileCovB(brCovData[item])
+
+#     print "line:"
+#     for sItem in zoom(covRateListL, 0):
+#         print sItem
+#     print "branch:"
+#     for sItem in zoom(covRateListB, 0):
+#         print sItem
+
+
+# print r'''
+# ########################################
+# #
+# # 2. Distribution for extra cov of single tests -- directory(all five .info)
+# #
+# ########################################
+# '''
+
+# selfIdx = len(fileNameList) - 1
+# print "self:", selfIdx
+# for i in range(0, len(fileNameList) - 1):
+#     print "info:", fileNameList[i]
+#     extraCovL = covDictExtraL(lineCovData[fileNameList[i]], lineCovData[fileNameList[selfIdx]])
+#     extraCovB = covDictExtraB(brCovData[fileNameList[i]], brCovData[fileNameList[selfIdx]])    
+
+#     covRateListL = fileCovL(extraCovL)
+#     covRateListB = fileCovB(extraCovB)
+#     print "line:"
+#     for item in zoom(covRateListL, 2):
+#         print item
+
+#     print "Branch:"
+#     for item in zoom(covRateListB, 2):
+#         print item
+
+
+
+
+print r'''
+########################################
+#
+# 3. Distribution for extra cov of overall tests -- directory(all five .info)
+#
+########################################
+'''
+
+
+
+selfIdx = len(fileNameList) - 1
+print "self:", selfIdx
+
+d0L = lineCovData[fileNameList[0]]
+d1L = lineCovData[fileNameList[1]]
+d2L = lineCovData[fileNameList[2]]
+d3L = lineCovData[fileNameList[3]]
+d4L = lineCovData[fileNameList[4]]
+
+d0B = brCovData[fileNameList[0]]
+d1B = brCovData[fileNameList[1]]
+d2B = brCovData[fileNameList[2]]
+d3B = brCovData[fileNameList[3]]
+d4B = brCovData[fileNameList[4]]
+
+
+
+
+
+# coverage overlap of all 4 components
+dmL = covDictAndL(d0L, d1L)
+dmL = covDictAndL(d2L, dmL)
+dmL = covDictAndL(d3L, dmL)
+
+dmB = covDictAndB(d0B, d1B)
+dmB = covDictAndB(d2B, dmB)
+dmB = covDictAndB(d3B, dmB)
+
+extraL = covDictExtraL(dmL, d4L)
+extraB = covDictExtraB(dmB, d4B)
+
+
+
+print "AND(overlap):"
+
+print "line:"
+for item in zoom(fileCovL(extraL), 0):
+    print item
+    
+print "branch:"
+for item in zoom(fileCovB(extraB), 0):
+    print item
+
+
+# coverage cumulation of all 4 components
+dmL = covDictOrL(d0L, d1L)
+dmL = covDictOrL(d2L, dmL)
+dmL = covDictOrL(d3L, dmL)
+
+dmB = covDictOrB(d0B, d1B)
+dmB = covDictOrB(d2B, dmB)
+dmB = covDictOrB(d3B, dmB)
+
+extraL = covDictExtraL(dmL, d4L)
+extraB = covDictExtraB(dmB, d4B)
+
+print "Or(cumulation):"
+
+print "line:"
+for item in zoom(fileCovL(dmL), 0):
+    print item
+    
+print "branch:"
+for item in zoom(fileCovB(dmB), 0):
+    print item
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# for item in fileNameList:
+#     print "info file:", item
+    
+#     print "line coverage:"
+
+#     covRateListL = fileCovL(lineCovData[item])
+#     for pair in covRateListL:
+#         print pair
+
+#     print "--------------------------------------------------------------------------------"
+        
+#     print "Branch coverage:"
+#     covRateListB = fileCovB(brCovData[item])
+#     for pair in covRateListB:
+#         print pair
+        
+    
+
 
 
