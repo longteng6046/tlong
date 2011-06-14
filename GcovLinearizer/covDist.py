@@ -374,11 +374,20 @@ print  "*************************************************\n"
 #     covRateListB = fileCovB(brCovData[item])
 
 #     print "line:"
-#     for sItem in zoom(covRateListL, 0):
+#     xls_output = ''
+#     for sItem in zoom(covRateListL, 2):
 #         print sItem
+#         xls_output += str(sItem[3])
+#         xls_output += '\t'
+#     print xls_output
+    
 #     print "branch:"
-#     for sItem in zoom(covRateListB, 0):
+#     xls_output = ''
+#     for sItem in zoom(covRateListB, 2):
 #         print sItem
+#         xls_output += str(sItem[3])
+#         xls_output += '\t'
+#     print xls_output
 
 
 # print r'''
@@ -399,28 +408,426 @@ print  "*************************************************\n"
 #     covRateListL = fileCovL(extraCovL)
 #     covRateListB = fileCovB(extraCovB)
 #     print "line:"
-#     for item in zoom(covRateListL, 2):
+#     xls_output = ''
+#     for item in zoom(covRateListL, 1):
 #         print item
+#         xls_output += str(item[3])
+#         xls_output += '\t'
+#     print xls_output        
 
 #     print "Branch:"
-#     for item in zoom(covRateListB, 2):
+#     xls_output = ''
+#     for item in zoom(covRateListB, 1):
 #         print item
+#         xls_output += str(item[3])
+#         xls_output += '\t'
+#     print xls_output        
 
+
+
+
+# print r'''
+# ########################################
+# #
+# # 3. Distribution for extra cov of overall tests -- directory(all five .info)
+# #
+# ########################################
+# '''
+
+# zoomScale = 1
+
+# selfIdx = len(fileNameList) - 1
+# print "self:", selfIdx
+
+
+# ##############################
+# # AND, overlapping extra coverage
+# # OR, cumulative extra coverage
+# ##############################
+
+
+# d0L = lineCovData[fileNameList[0]]
+# d1L = lineCovData[fileNameList[1]]
+# d2L = lineCovData[fileNameList[2]]
+# d3L = lineCovData[fileNameList[3]]
+# d4L = lineCovData[fileNameList[4]]
+
+# d0B = brCovData[fileNameList[0]]
+# d1B = brCovData[fileNameList[1]]
+# d2B = brCovData[fileNameList[2]]
+# d3B = brCovData[fileNameList[3]]
+# d4B = brCovData[fileNameList[4]]
+
+
+
+# print "Two top-level components:"
+# for i in range(0,4):
+#     for j in range(i + 1, 4):
+
+#         print "\n=================================================="
+#         print '(', i, j, ')'
+#         namei = fileNameList[i]
+#         namej = fileNameList[j]
+#         diL = lineCovData[namei]
+#         djL = lineCovData[namej]
+#         diB = brCovData[namei]
+#         djB = brCovData[namej]
+
+#         covAndL = covDictAndL(diL, djL)
+#         covAndB = covDictAndB(diB, djB)
+#         covExtraL = covDictExtraL(covAndL, d4L)
+#         covExtraB = covDictExtraB(covAndB, d4B)
+
+
+#         print "i:", namei
+#         print "j:", namej
+
+#         print "\n-------------------- Overlap --------------------"
+
+#         print "line:"
+#         xls_output = ""
+#         for item in zoom(fileCovL(covExtraL), zoomScale):
+#             print item
+#             xls_output += str(item[3])
+#             xls_output += '\t'
+#         print xls_output
+
+#         xls_output = ""
+#         print "branch:"
+#         for item in zoom(fileCovB(covExtraB), zoomScale):
+#             print item
+#             xls_output += str(item[3])
+#             xls_output += '\t'
+#         print xls_output
+
+#         print "\n-------------------- Cumulative --------------------"
+
+#         covOrL = covDictOrL(diL, djL)
+#         covOrB = covDictOrB(diB, djB)
+#         covExtraL = covDictExtraL(covOrL, d4L)
+#         covExtraB = covDictExtraB(covOrB, d4B)
+
+#         print "line:"
+#         xls_output = ""
+#         for item in zoom(fileCovL(covExtraL), zoomScale):
+#             print item
+#             xls_output += str(item[3])
+#             xls_output += '\t'
+#         print xls_output
+        
+#         print "branch:"
+#         xls_output = ""
+#         for item in zoom(fileCovB(covExtraB), zoomScale):
+#             print item
+#             xls_output += str(item[3])
+#             xls_output += '\t'
+#         print xls_output
+#         print "==================================================\n"
+
+
+
+# print "Three top-level components:"
+# for i in range(0,4):
+#     for j in range(i + 1, 4):
+#         for k in range (j + 1, 4):
+
+#             print "\n=================================================="
+#             print '(', i, j, k, ')'
+#             namei = fileNameList[i]
+#             namej = fileNameList[j]
+#             namek = fileNameList[k]
+#             diL = lineCovData[namei]
+#             djL = lineCovData[namej]
+#             dkL = lineCovData[namek]
+#             diB = brCovData[namei]
+#             djB = brCovData[namej]
+#             dkB = brCovData[namek]
+
+#             covAndL = covDictAndL(diL, djL)
+#             covAndL = covDictAndL(covAndL, dkL)
+
+#             covAndB = covDictAndB(diB, djB)
+#             covAndB = covDictAndB(covAndB, dkB)
+            
+#             covExtraL = covDictExtraL(covAndL, d4L)
+#             covExtraB = covDictExtraB(covAndB, d4B)
+
+
+#             print "i:", namei
+#             print "j:", namej
+#             print "k:", namek
+#             print "-------------------- Overlap --------------------"
+
+#             print "line:"
+#             xls_output = ""
+#             for item in zoom(fileCovL(covExtraL), zoomScale):
+#                 print item
+#                 xls_output += str(item[3])
+#                 xls_output += '\t'
+#             print xls_output
+
+#             print "branch:"
+#             xls_output = ""
+#             for item in zoom(fileCovB(covExtraB), zoomScale):
+#                 print item
+#                 xls_output += str(item[3])
+#                 xls_output += '\t'
+#             print xls_output
+            
+#             print "-------------------- Cumulative --------------------"
+
+#             covOrL = covDictOrL(diL, djL)
+#             covOrL = covDictOrL(covOrL, dkL)
+            
+#             covOrB = covDictOrB(diB, djB)
+#             covOrB = covDictOrB(covOrB, dkB)
+#             covExtraL = covDictExtraL(covOrL, d4L)
+#             covExtraB = covDictExtraB(covOrB, d4B)
+
+#             print "line:"
+#             xls_output = ""
+#             for item in zoom(fileCovL(covExtraL), zoomScale):
+#                 print item
+#                 xls_output += str(item[3])
+#                 xls_output += '\t'
+#             print xls_output
+            
+#             print "branch:"
+#             xls_output = ""
+#             for item in zoom(fileCovB(covExtraB), zoomScale):
+#                 print item
+#                 xls_output += str(item[3])
+#                 xls_output += '\t'
+#             print xls_output
+            
+#             print "==================================================\n"
+
+
+
+
+# print "Four top-level components:"
+
+# print "\n=================================================="
+# names = []
+# dL = []
+# dB = []
+
+# for i in range(0, 4):
+#     names.append(fileNameList[i])
+#     dL.append(lineCovData[names[i]])
+#     dB.append(brCovData[names[i]])
+
+# covAndL = covDictAndL(dL[0], dL[1])
+# covAndL = covDictAndL(covAndL, dL[2])
+# covAndL = covDictAndL(covAndL, dL[3])
+# covAndB = covDictAndB(dL[0], dL[1])
+# covAndB = covDictAndB(covAndB, dL[2])
+# covAndB = covDictAndB(covAndB, dL[3])
+
+# covExtraL = covDictExtraL(covAndL, d4L)
+# covExtraB = covDictExtraB(covAndB, d4B)
+
+# print "-------------------- Overlap --------------------"
+
+# print "line:"
+# xls_output = ""
+# for item in zoom(fileCovL(covExtraL), zoomScale):
+#     print item
+#     xls_output += str(item[3])
+#     xls_output += '\t'
+# print xls_output
+    
+# print "branch:"
+# xls_output = ""
+# for item in zoom(fileCovB(covExtraB), zoomScale):
+#     print item
+#     xls_output += str(item[3])
+#     xls_output += '\t'
+# print xls_output
+
+
+# covOrL = covDictOrL(dL[0], dL[1])
+# covOrL = covDictOrL(covOrL, dL[2])
+# covOrL = covDictOrL(covOrL, dL[3])
+# covOrB = covDictOrB(dL[0], dL[1])
+# covOrB = covDictOrB(covOrB, dL[2])
+# covOrB = covDictOrB(covOrB, dL[3])
+
+# covExtraL = covDictExtraL(covOrL, d4L)
+# covExtraB = covDictExtraB(covOrB, d4B)
+
+# print "-------------------- Cumulative --------------------"
+
+# print "line:"
+# xls_output = ""
+# for item in zoom(fileCovL(covExtraL), zoomScale):
+#     print item
+#     xls_output += str(item[3])
+#     xls_output += '\t'
+# print xls_output
+# print "branch:"
+
+# xls_output = ""
+# for item in zoom(fileCovB(covExtraB), zoomScale):
+#     print item
+#     xls_output += str(item[3])
+#     xls_output += '\t'
+# print xls_output
+
+# print "==================================================\n"
+
+
+
+
+
+
+# print r'''
+# ########################################
+# #
+# # 4. Distribution for code that covered by unit test but not upper-levels.
+# #
+# ########################################
+# '''
+
+# zoomScale = 2
+
+# selfIdx = len(fileNameList) - 1
+
+
+# d0L = lineCovData[fileNameList[0]]
+# d1L = lineCovData[fileNameList[1]]
+# d2L = lineCovData[fileNameList[2]]
+# d3L = lineCovData[fileNameList[3]]
+# d4L = lineCovData[fileNameList[4]]
+
+# d0B = brCovData[fileNameList[0]]
+# d1B = brCovData[fileNameList[1]]
+# d2B = brCovData[fileNameList[2]]
+# d3B = brCovData[fileNameList[3]]
+# d4B = brCovData[fileNameList[4]]
+
+
+# print "\n=================================================="
+# names = []
+# dL = []
+# dB = []
+
+# for i in range(0, 4):
+#     names.append(fileNameList[i])
+#     dL.append(lineCovData[names[i]])
+#     dB.append(brCovData[names[i]])
+
+
+# covOrL = covDictOrL(dL[0], dL[1])
+# covOrL = covDictOrL(covOrL, dL[2])
+# covOrL = covDictOrL(covOrL, dL[3])
+# covOrB = covDictOrB(dL[0], dL[1])
+# covOrB = covDictOrB(covOrB, dL[2])
+# covOrB = covDictOrB(covOrB, dL[3])
+
+# # covExtraL = covDictExtraL(covOrL, d4L)
+# # covExtraB = covDictExtraB(covOrB, d4B)
+
+# covExtraL = covDictExtraL(d4L, covOrL)
+# covExtraB = covDictExtraB(d4B, covOrB)
+
+# print "-------------------- Cumulative --------------------"
+
+# print "line:"
+# for item in zoom(fileCovL(covExtraL), zoomScale):
+#     print item
+# print "branch:"
+# for item in zoom(fileCovB(covExtraB), zoomScale):
+#     print item
+
+# print "==================================================\n"
+
+
+
+# print r'''
+# ########################################
+# #
+# # 5. Distribution for code that covered by upper-level components together
+# #
+# ########################################
+# '''
+
+# zoomScale = 1
+
+# selfIdx = len(fileNameList) - 1
+
+
+# d0L = lineCovData[fileNameList[0]]
+# d1L = lineCovData[fileNameList[1]]
+# d2L = lineCovData[fileNameList[2]]
+# d3L = lineCovData[fileNameList[3]]
+# d4L = lineCovData[fileNameList[4]]
+
+# d0B = brCovData[fileNameList[0]]
+# d1B = brCovData[fileNameList[1]]
+# d2B = brCovData[fileNameList[2]]
+# d3B = brCovData[fileNameList[3]]
+# d4B = brCovData[fileNameList[4]]
+
+
+# print "\n=================================================="
+# names = []
+# dL = []
+# dB = []
+
+# for i in range(0, 4):
+#     names.append(fileNameList[i])
+#     dL.append(lineCovData[names[i]])
+#     dB.append(brCovData[names[i]])
+
+
+# covOrL = covDictOrL(dL[0], dL[1])
+# covOrL = covDictOrL(covOrL, dL[2])
+# covOrL = covDictOrL(covOrL, dL[3])
+# covOrB = covDictOrB(dB[0], dB[1])
+# covOrB = covDictOrB(covOrB, dB[2])
+# covOrB = covDictOrB(covOrB, dB[3])
+
+# # covExtraL = covDictExtraL(covOrL, d4L)
+# # covExtraB = covDictExtraB(covOrB, d4B)
+
+# # covExtraL = covDictExtraL(d4L, covOrL)
+# # covExtraB = covDictExtraB(d4B, covOrB)
+
+# print "-------------------- Cumulative --------------------"
+
+# print "line:"
+# xls_output = ''
+# for item in zoom(fileCovL(covOrL), zoomScale):
+#     print item
+#     xls_output += str(item[3])
+#     xls_output += '\t'
+# print xls_output
+
+# print "branch:"
+# xls_output = ''
+# for item in zoom(fileCovB(covOrB), zoomScale):
+#     print item
+#     xls_output += str(item[3])
+#     xls_output += '\t'
+# print xls_output    
+
+# print "==================================================\n"
 
 
 
 print r'''
 ########################################
 #
-# 3. Distribution for extra cov of overall tests -- directory(all five .info)
+# 6. Distribution for overlapping code that from upper-level components
 #
 ########################################
 '''
 
-
+zoomScale = 2
 
 selfIdx = len(fileNameList) - 1
-print "self:", selfIdx
+
 
 d0L = lineCovData[fileNameList[0]]
 d1L = lineCovData[fileNameList[1]]
@@ -435,91 +842,46 @@ d3B = brCovData[fileNameList[3]]
 d4B = brCovData[fileNameList[4]]
 
 
+print "\n=================================================="
+names = []
+dL = []
+dB = []
+
+for i in range(0, 4):
+    names.append(fileNameList[i])
+    dL.append(lineCovData[names[i]])
+    dB.append(brCovData[names[i]])
 
 
+covAndL = covDictAndL(dL[0], dL[1])
+covAndL = covDictAndL(covAndL, dL[2])
+covAndL = covDictAndL(covAndL, dL[3])
+covAndB = covDictAndB(dB[0], dB[1])
+covAndB = covDictAndB(covAndB, dB[2])
+covAndB = covDictAndB(covAndB, dB[3])
 
-# coverage overlap of all 4 components
-dmL = covDictAndL(d0L, d1L)
-dmL = covDictAndL(d2L, dmL)
-dmL = covDictAndL(d3L, dmL)
+# covExtraL = covDictExtraL(covOrL, d4L)
+# covExtraB = covDictExtraB(covOrB, d4B)
 
-dmB = covDictAndB(d0B, d1B)
-dmB = covDictAndB(d2B, dmB)
-dmB = covDictAndB(d3B, dmB)
+# covExtraL = covDictExtraL(d4L, covOrL)
+# covExtraB = covDictExtraB(d4B, covOrB)
 
-extraL = covDictExtraL(dmL, d4L)
-extraB = covDictExtraB(dmB, d4B)
-
-
-
-print "AND(overlap):"
-
-print "line:"
-for item in zoom(fileCovL(extraL), 0):
-    print item
-    
-print "branch:"
-for item in zoom(fileCovB(extraB), 0):
-    print item
-
-
-# coverage cumulation of all 4 components
-dmL = covDictOrL(d0L, d1L)
-dmL = covDictOrL(d2L, dmL)
-dmL = covDictOrL(d3L, dmL)
-
-dmB = covDictOrB(d0B, d1B)
-dmB = covDictOrB(d2B, dmB)
-dmB = covDictOrB(d3B, dmB)
-
-extraL = covDictExtraL(dmL, d4L)
-extraB = covDictExtraB(dmB, d4B)
-
-print "Or(cumulation):"
+print "-------------------- Cumulative --------------------"
 
 print "line:"
-for item in zoom(fileCovL(dmL), 0):
+xls_output = ''
+for item in zoom(fileCovL(covAndL), zoomScale):
     print item
-    
+    xls_output += str(item[3])
+    xls_output += '\t'
+print xls_output
+
 print "branch:"
-for item in zoom(fileCovB(dmB), 0):
+xls_output = ''
+for item in zoom(fileCovB(covAndB), zoomScale):
     print item
+    xls_output += str(item[3])
+    xls_output += '\t'
+print xls_output    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# for item in fileNameList:
-#     print "info file:", item
-    
-#     print "line coverage:"
-
-#     covRateListL = fileCovL(lineCovData[item])
-#     for pair in covRateListL:
-#         print pair
-
-#     print "--------------------------------------------------------------------------------"
-        
-#     print "Branch coverage:"
-#     covRateListB = fileCovB(brCovData[item])
-#     for pair in covRateListB:
-#         print pair
-        
-    
-
-
-
+print "==================================================\n"
