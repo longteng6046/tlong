@@ -31,7 +31,7 @@ counter = 0
 
 for item in testList:
     counter += 1
-    xmlfile = codecs.open(dir1 + '/' + item, encoding='utf-8')
+    xmlfile = codecs.open(dir1 + '/' + item, encoding='utf-8', mode='r')
 
 
     if len(xmlfile.readlines()) < 10:
@@ -41,6 +41,7 @@ for item in testList:
     xmlfile.seek(0)
     
     xtree = Xtree()
+    print "case:", item
     xtree.parseFile(xmlfile)
     xtree.formalize()
     writeXML(xtree.root, destfile)
