@@ -22,30 +22,33 @@ for line in file2.readlines():
 list1 = list(set(list1))
 list2 = list(set(list2))
 
+list1_n = []
+list2_n = []
 
 for item in list1:
-    if item in list2:
-        list1.remove(item)
-        list2.remove(item)
-        print 'pop1'
+    if item not in list2:
+        list1_n.append(item)
 for item in list2:
-    if item in list1:
-        list1.remove(item)
-        list2.remove(item)
-        print 'pop2'
+    if item not in list1:
+        list2_n.append(item)
 
 
         
 
-list1.sort()
-list2.sort()
+list1_n.sort()
+list2_n.sort()
 
-print len(list1)
-print len(list2)
 
-# for i in range(0, len(list1)):
-    # if list1[i] != list2[i]:
-        # print "idx:", i, 'list1:', list1[i], 'list2:', list2[i]
+
+print "list1:"
+for item in list1_n:
+    print item
+
+print "list2:"
+for item in list2_n:
+    print item
+print "length_1:", len(list1_n)
+print "length_2:", len(list2_n)
 
 file1.close()        
 file2.close()        
