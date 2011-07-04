@@ -1,0 +1,230 @@
+cd test && make all check
+make[1]: Entering directory `/home/tlong/new_workspace/apr/apr-1.4.2/test'
+make[2]: Entering directory `/home/tlong/new_workspace/apr/apr-1.4.2/test'
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o proc_child.lo -c proc_child.c && touch proc_child.lo
+proc_child.c: In function ‘main’:
+proc_child.c:18: warning: ignoring return value of ‘write’, declared with attribute warn_unused_result
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o proc_child proc_child.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o readchild.lo -c readchild.c && touch readchild.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o readchild readchild.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o sockchild.lo -c sockchild.c && touch sockchild.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o sockchild sockchild.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testshmproducer.lo -c testshmproducer.c && touch testshmproducer.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o testshmproducer testshmproducer.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testshmconsumer.lo -c testshmconsumer.c && touch testshmconsumer.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o testshmconsumer testshmconsumer.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o tryread.lo -c tryread.c && touch tryread.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o tryread tryread.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testlockperf.lo -c testlockperf.c && touch testlockperf.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o testlockperf testlockperf.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testmutexscope.lo -c testmutexscope.c && touch testmutexscope.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o testmutexscope testmutexscope.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o abts.lo -c abts.c && touch abts.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testutil.lo -c testutil.c && touch testutil.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testtime.lo -c testtime.c && touch testtime.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o teststr.lo -c teststr.c && touch teststr.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testvsn.lo -c testvsn.c && touch testvsn.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testipsub.lo -c testipsub.c && touch testipsub.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testshm.lo -c testshm.c && touch testshm.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testmmap.lo -c testmmap.c && touch testmmap.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testud.lo -c testud.c && touch testud.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testtable.lo -c testtable.c && touch testtable.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testsleep.lo -c testsleep.c && touch testsleep.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testpools.lo -c testpools.c && touch testpools.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testfmt.lo -c testfmt.c && touch testfmt.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testfile.lo -c testfile.c && touch testfile.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testdir.lo -c testdir.c && touch testdir.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testfileinfo.lo -c testfileinfo.c && touch testfileinfo.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testrand.lo -c testrand.c && touch testrand.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testdso.lo -c testdso.c && touch testdso.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testoc.lo -c testoc.c && touch testoc.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testdup.lo -c testdup.c && touch testdup.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testsockets.lo -c testsockets.c && touch testsockets.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testproc.lo -c testproc.c && touch testproc.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testpoll.lo -c testpoll.c && touch testpoll.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testlock.lo -c testlock.c && touch testlock.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testsockopt.lo -c testsockopt.c && touch testsockopt.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testpipe.lo -c testpipe.c && touch testpipe.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testthread.lo -c testthread.c && touch testthread.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testhash.lo -c testhash.c && touch testhash.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testargs.lo -c testargs.c && touch testargs.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testnames.lo -c testnames.c && touch testnames.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testuser.lo -c testuser.c && touch testuser.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testpath.lo -c testpath.c && touch testpath.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testenv.lo -c testenv.c && touch testenv.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testprocmutex.lo -c testprocmutex.c && touch testprocmutex.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testfnmatch.lo -c testfnmatch.c && touch testfnmatch.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testatomic.lo -c testatomic.c && touch testatomic.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testflock.lo -c testflock.c && touch testflock.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testsock.lo -c testsock.c && touch testsock.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testglobalmutex.lo -c testglobalmutex.c && touch testglobalmutex.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o teststrnatcmp.lo -c teststrnatcmp.c && touch teststrnatcmp.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testfilecopy.lo -c testfilecopy.c && touch testfilecopy.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testtemp.lo -c testtemp.c && touch testtemp.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testlfs.lo -c testlfs.c && touch testlfs.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o testcond.lo -c testcond.c && touch testcond.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o testall abts.lo testutil.lo testtime.lo teststr.lo testvsn.lo testipsub.lo testshm.lo testmmap.lo testud.lo testtable.lo testsleep.lo testpools.lo testfmt.lo testfile.lo testdir.lo testfileinfo.lo testrand.lo testdso.lo testoc.lo testdup.lo testsockets.lo testproc.lo testpoll.lo testlock.lo testsockopt.lo testpipe.lo testthread.lo testhash.lo testargs.lo testnames.lo testuser.lo testpath.lo testenv.lo testprocmutex.lo testfnmatch.lo testatomic.lo testflock.lo testsock.lo testglobalmutex.lo teststrnatcmp.lo testfilecopy.lo testtemp.lo testlfs.lo testcond.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+if test ! -d "./data"; then cp -r ./data data; fi
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o sendfile.lo -c sendfile.c && touch sendfile.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o sendfile sendfile.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o echod.lo -c echod.c && touch echod.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o echod echod.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=compile gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -o sockperf.lo -c sockperf.c && touch sockperf.lo
+/bin/bash /home/tlong/new_workspace/apr/apr-1.4.2/libtool --silent --mode=link  gcc -fprofile-arcs -ftest-coverage -g -O2 -pthread   -DHAVE_CONFIG_H -DLINUX=2 -D_REENTRANT -D_GNU_SOURCE -D_LARGEFILE64_SOURCE   -I../include -I./../include  -no-install    -o sockperf sockperf.lo ../libapr-1.la   -lrt -lcrypt  -lpthread -ldl
+make[2]: Leaving directory `/home/tlong/new_workspace/apr/apr-1.4.2/test'
+teststatus=0; \
+	progfailed=""; \
+	for prog in testlockperf testmutexscope testall ; do \
+		./$prog; \
+		status=$?; \
+		if test $status != 0; then \
+			teststatus=$status; \
+			progfailed="$progfailed $prog"; \
+		fi; \
+	done; \
+	if test $teststatus != 0; then \
+		echo "Programs failed:$progfailed"; \
+	fi; \
+	exit $teststatus
+APR Lock Performance Test
+==============
+
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (UNNESTED)          OK
+    Starting 1 threads    OK
+microseconds: 101413 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (NESTED)            OK
+    Starting 1 threads    OK
+microseconds: 74719 usec
+apr_thread_rwlock_t Tests
+    Initializing the apr_thread_rwlock_t                    OK
+    Starting 1 threads    OK
+microseconds: 97821 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (UNNESTED)          OK
+    Starting 2 threads    OK
+microseconds: 132832 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (NESTED)            OK
+    Starting 2 threads    OK
+microseconds: 140337 usec
+apr_thread_rwlock_t Tests
+    Initializing the apr_thread_rwlock_t                    OK
+    Starting 2 threads    OK
+microseconds: 191441 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (UNNESTED)          OK
+    Starting 3 threads    OK
+microseconds: 204199 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (NESTED)            OK
+    Starting 3 threads    OK
+microseconds: 206714 usec
+apr_thread_rwlock_t Tests
+    Initializing the apr_thread_rwlock_t                    OK
+    Starting 3 threads    OK
+microseconds: 351479 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (UNNESTED)          OK
+    Starting 4 threads    OK
+microseconds: 269725 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (NESTED)            OK
+    Starting 4 threads    OK
+microseconds: 274707 usec
+apr_thread_rwlock_t Tests
+    Initializing the apr_thread_rwlock_t                    OK
+    Starting 4 threads    OK
+microseconds: 580865 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (UNNESTED)          OK
+    Starting 5 threads    OK
+microseconds: 326369 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (NESTED)            OK
+    Starting 5 threads    OK
+microseconds: 354522 usec
+apr_thread_rwlock_t Tests
+    Initializing the apr_thread_rwlock_t                    OK
+    Starting 5 threads    OK
+microseconds: 896447 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (UNNESTED)          OK
+    Starting 6 threads    OK
+microseconds: 409358 usec
+apr_thread_mutex_t Tests
+    Initializing the apr_thread_mutex_t (NESTED)            OK
+    Starting 6 threads    OK
+microseconds: 413515 usec
+apr_thread_rwlock_t Tests
+    Initializing the apr_thread_rwlock_t                    OK
+    Starting 6 threads    OK
+microseconds: 1097060 usec
+Trying proc mutexes with mechanism `default'...
+  Mutex mechanism `default' is global in scope on this platform.
+Trying global mutexes with mechanism `default'...
+  no problems encountered...
+Trying proc mutexes with mechanism `flock'...
+  Mutex mechanism `flock' is not global in scope on this platform.
+Trying global mutexes with mechanism `flock'...
+  no problems encountered...
+Trying proc mutexes with mechanism `sysvsem'...
+  Mutex mechanism `sysvsem' is global in scope on this platform.
+Trying global mutexes with mechanism `sysvsem'...
+  no problems encountered...
+Trying proc mutexes with mechanism `posix'...
+  Mutex mechanism `posix' is global in scope on this platform.
+Trying global mutexes with mechanism `posix'...
+  no problems encountered...
+Trying proc mutexes with mechanism `fcntl'...
+  Mutex mechanism `fcntl' is not global in scope on this platform.
+Trying global mutexes with mechanism `fcntl'...
+  no problems encountered...
+Trying proc mutexes with mechanism `proc_pthread'...
+  Mutex mechanism `proc_pthread' is global in scope on this platform.
+Trying global mutexes with mechanism `proc_pthread'...
+  no problems encountered...
+testatomic          :  SUCCESS
+testdir             :  SUCCESS
+testdso             :  SUCCESS
+testdup             :  SUCCESS
+testenv             :  SUCCESS
+testfile            :  SUCCESS
+testfilecopy        :  SUCCESS
+testfileinfo        :  SUCCESS
+testflock           :  SUCCESS
+testfmt             :  SUCCESS
+testfnmatch         :  SUCCESS
+testargs            :  SUCCESS
+testhash            :  SUCCESS
+testipsub           :  SUCCESS
+testlock            :  SUCCESS
+testcond            :  SUCCESS
+testlfs             :  SUCCESS
+testmmap            :  SUCCESS
+testnames           :  SUCCESS
+testoc              :  SUCCESS
+testpath            :  SUCCESS
+testpipe            :  SUCCESS
+testpoll            :  SUCCESS
+testpools           :  SUCCESS
+testproc            :  SUCCESS
+testprocmutex       :  SUCCESS
+testrand            :  SUCCESS
+testsleep           :  SUCCESS
+testshm             :  SUCCESS
+testsock            :  SUCCESS
+testsockets         :  SUCCESS
+testsockopt         :  SUCCESS
+teststr             :  SUCCESS
+teststrnatcmp       :  SUCCESS
+testtable           :  SUCCESS
+testtemp            :  SUCCESS
+testthread          :  SUCCESS
+testtime            :  SUCCESS
+testud              :  SUCCESS
+testuser            :  SUCCESS
+testvsn             :  SUCCESS
+All tests passed.
+make[1]: Leaving directory `/home/tlong/new_workspace/apr/apr-1.4.2/test'
