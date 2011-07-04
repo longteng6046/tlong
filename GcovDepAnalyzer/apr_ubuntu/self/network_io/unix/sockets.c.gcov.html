@@ -1,0 +1,567 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>LCOV - self_test2.info - network_io/unix/sockets.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">network_io/unix</a> - sockets.c<span style="font-size: 80%;"> (source / <a href="sockets.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">self_test2.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">109</td>
+            <td class="headerCovTableEntry">161</td>
+            <td class="headerCovTableEntryLo">67.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2011-07-03</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryLo">65.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">90</td>
+            <td class="headerCovTableEntryLo">35.6 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Licensed to the Apache Software Foundation (ASF) under one or more</a>
+<span class="lineNum">       2 </span>                :            :  * contributor license agreements.  See the NOTICE file distributed with
+<span class="lineNum">       3 </span>                :            :  * this work for additional information regarding copyright ownership.
+<span class="lineNum">       4 </span>                :            :  * The ASF licenses this file to You under the Apache License, Version 2.0
+<span class="lineNum">       5 </span>                :            :  * (the &quot;License&quot;); you may not use this file except in compliance with
+<span class="lineNum">       6 </span>                :            :  * the License.  You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  *     http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &quot;apr_arch_networkio.h&quot;
+<span class="lineNum">      18 </span>                :            : #include &quot;apr_network_io.h&quot;
+<span class="lineNum">      19 </span>                :            : #include &quot;apr_strings.h&quot;
+<span class="lineNum">      20 </span>                :            : #include &quot;apr_support.h&quot;
+<span class="lineNum">      21 </span>                :            : #include &quot;apr_portable.h&quot;
+<span class="lineNum">      22 </span>                :            : #include &quot;apr_arch_inherit.h&quot;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : #ifdef BEOS_R5
+<span class="lineNum">      25 </span>                :            : #undef close
+<span class="lineNum">      26 </span>                :            : #define close closesocket
+<span class="lineNum">      27 </span>                :            : #endif /* BEOS_R5 */
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : static char generic_inaddr_any[16] = {0}; /* big enough for IPv4 or IPv6 */
+<a name="30"><span class="lineNum">      30 </span>                :            : </a>
+<span class="lineNum">      31 </span>                :            : static apr_status_t socket_cleanup(void *sock)
+<span class="lineNum">      32 </span>                :<span class="lineCov">        134 : {</span>
+<span class="lineNum">      33 </span>                :<span class="lineCov">        134 :     apr_socket_t *thesocket = sock;</span>
+<span class="lineNum">      34 </span>                :<span class="lineCov">        134 :     int sd = thesocket-&gt;socketdes;</span>
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            :     /* Set socket descriptor to -1 before close(), so that there is no
+<span class="lineNum">      37 </span>                :            :      * chance of returning an already closed FD from apr_os_sock_get().
+<span class="lineNum">      38 </span>                :            :      */
+<span class="lineNum">      39 </span>                :<span class="lineCov">        134 :     thesocket-&gt;socketdes = -1;</span>
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>        [<span class="branchCov" title="Branch 1 was taken 134 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">        134 :     if (close(sd) == 0) {</span>
+<span class="lineNum">      42 </span>                :<span class="lineCov">        134 :         return APR_SUCCESS;</span>
+<span class="lineNum">      43 </span>                :            :     }
+<span class="lineNum">      44 </span>                :            :     else {
+<span class="lineNum">      45 </span>                :            :         /* Restore, close() was not successful. */
+<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 :         thesocket-&gt;socketdes = sd;</span>
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :<span class="lineCov">        134 :         return errno;</span>
+<span class="lineNum">      49 </span>                :            :     }
+<span class="lineNum">      50 </span>                :            : }
+<a name="51"><span class="lineNum">      51 </span>                :            : </a>
+<span class="lineNum">      52 </span>                :            : static void set_socket_vars(apr_socket_t *sock, int family, int type, int protocol)
+<span class="lineNum">      53 </span>                :<span class="lineCov">        129 : {</span>
+<span class="lineNum">      54 </span>                :<span class="lineCov">        129 :     sock-&gt;type = type;</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">        129 :     sock-&gt;protocol = protocol;</span>
+<span class="lineNum">      56 </span>                :<span class="lineCov">        129 :     apr_sockaddr_vars_set(sock-&gt;local_addr, family, 0);</span>
+<span class="lineNum">      57 </span>                :<span class="lineCov">        129 :     apr_sockaddr_vars_set(sock-&gt;remote_addr, family, 0);</span>
+<span class="lineNum">      58 </span>                :<span class="lineCov">        129 :     sock-&gt;options = 0;</span>
+<span class="lineNum">      59 </span>                :            : #if defined(BEOS) &amp;&amp; !defined(BEOS_BONE)
+<span class="lineNum">      60 </span>                :            :     /* BeOS pre-BONE has TCP_NODELAY on by default and it can't be
+<span class="lineNum">      61 </span>                :            :      * switched off!
+<span class="lineNum">      62 </span>                :            :      */
+<span class="lineNum">      63 </span>                :            :     sock-&gt;options |= APR_TCP_NODELAY;
+<span class="lineNum">      64 </span>                :            : #endif
+<span class="lineNum">      65 </span>                :<span class="lineCov">        129 : }</span>
+<a name="66"><span class="lineNum">      66 </span>                :            : </a>
+<span class="lineNum">      67 </span>                :            : static void alloc_socket(apr_socket_t **new, apr_pool_t *p)
+<span class="lineNum">      68 </span>                :<span class="lineCov">        129 : {</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">        129 :     *new = (apr_socket_t *)apr_pcalloc(p, sizeof(apr_socket_t));</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">        129 :     (*new)-&gt;pool = p;</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">        129 :     (*new)-&gt;local_addr = (apr_sockaddr_t *)apr_pcalloc((*new)-&gt;pool,</span>
+<span class="lineNum">      72 </span>                :            :                                                        sizeof(apr_sockaddr_t));
+<span class="lineNum">      73 </span>                :<span class="lineCov">        129 :     (*new)-&gt;local_addr-&gt;pool = p;</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">        129 :     (*new)-&gt;remote_addr = (apr_sockaddr_t *)apr_pcalloc((*new)-&gt;pool,</span>
+<span class="lineNum">      75 </span>                :            :                                                         sizeof(apr_sockaddr_t));
+<span class="lineNum">      76 </span>                :<span class="lineCov">        129 :     (*new)-&gt;remote_addr-&gt;pool = p;</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">        129 :     (*new)-&gt;remote_addr_unknown = 1;</span>
+<span class="lineNum">      78 </span>                :            : #ifndef WAITIO_USES_POLL
+<span class="lineNum">      79 </span>                :            :     /* Create a pollset with room for one descriptor. */
+<span class="lineNum">      80 </span>                :            :     /* ### check return codes */
+<span class="lineNum">      81 </span>                :            :     (void) apr_pollset_create(&amp;(*new)-&gt;pollset, 1, p, 0);
+<span class="lineNum">      82 </span>                :            : #endif
+<span class="lineNum">      83 </span>                :<span class="lineCov">        129 : }</span>
+<a name="84"><span class="lineNum">      84 </span>                :            : </a>
+<span class="lineNum">      85 </span>                :            : apr_status_t apr_socket_protocol_get(apr_socket_t *sock, int *protocol)
+<span class="lineNum">      86 </span>                :<span class="lineCov">          3 : {</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">          3 :     *protocol = sock-&gt;protocol;</span>
+<span class="lineNum">      88 </span>                :<span class="lineCov">          3 :     return APR_SUCCESS;</span>
+<span class="lineNum">      89 </span>                :            : }
+<span class="lineNum">      90 </span>                :            : 
+<a name="91"><span class="lineNum">      91 </span>                :            : apr_status_t apr_socket_create(apr_socket_t **new, int ofamily, int type,</a>
+<span class="lineNum">      92 </span>                :            :                                int protocol, apr_pool_t *cont)
+<span class="lineNum">      93 </span>                :<span class="lineCov">        123 : {</span>
+<span class="lineNum">      94 </span>                :<span class="lineCov">        123 :     int family = ofamily, flags = 0;</span>
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :            : #ifdef HAVE_SOCK_CLOEXEC
+<span class="lineNum">      97 </span>                :<span class="lineCov">        123 :     flags |= SOCK_CLOEXEC;</span>
+<span class="lineNum">      98 </span>                :            : #endif
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 123 times"> + </span>]:<span class="lineCov">        123 :     if (family == APR_UNSPEC) {</span>
+<span class="lineNum">     101 </span>                :            : #if APR_HAVE_IPV6
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :         family = APR_INET6;</span>
+<span class="lineNum">     103 </span>                :            : #else
+<span class="lineNum">     104 </span>                :            :         family = APR_INET;
+<span class="lineNum">     105 </span>                :            : #endif
+<span class="lineNum">     106 </span>                :            :     }
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :<span class="lineCov">        123 :     alloc_socket(new, cont);</span>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :            : #ifndef BEOS_R5
+<span class="lineNum">     111 </span>                :<span class="lineCov">        123 :     (*new)-&gt;socketdes = socket(family, type|flags, protocol);</span>
+<span class="lineNum">     112 </span>                :            : #else
+<span class="lineNum">     113 </span>                :            :     /* For some reason BeOS R5 has an unconventional protocol numbering,
+<span class="lineNum">     114 </span>                :            :      * so we need to translate here. */
+<span class="lineNum">     115 </span>                :            :     switch (protocol) {
+<span class="lineNum">     116 </span>                :            :     case 0:
+<span class="lineNum">     117 </span>                :            :         (*new)-&gt;socketdes = socket(family, type|flags, 0);
+<span class="lineNum">     118 </span>                :            :         break;
+<span class="lineNum">     119 </span>                :            :     case APR_PROTO_TCP:
+<span class="lineNum">     120 </span>                :            :         (*new)-&gt;socketdes = socket(family, type|flags, IPPROTO_TCP);
+<span class="lineNum">     121 </span>                :            :         break;
+<span class="lineNum">     122 </span>                :            :     case APR_PROTO_UDP:
+<span class="lineNum">     123 </span>                :            :         (*new)-&gt;socketdes = socket(family, type|flags, IPPROTO_UDP);
+<span class="lineNum">     124 </span>                :            :         break;
+<span class="lineNum">     125 </span>                :            :     case APR_PROTO_SCTP:
+<span class="lineNum">     126 </span>                :            :     default:
+<span class="lineNum">     127 </span>                :            :         errno = EPROTONOSUPPORT;
+<span class="lineNum">     128 </span>                :            :         (*new)-&gt;socketdes = -1;
+<span class="lineNum">     129 </span>                :            :         break;
+<span class="lineNum">     130 </span>                :            :     }
+<span class="lineNum">     131 </span>                :            : #endif /* BEOS_R5 */
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :            : #if APR_HAVE_IPV6
+<span class="lineNum">     134 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 123 times"> + </span>]:<span class="lineCov">        123 :     if ((*new)-&gt;socketdes &lt; 0 &amp;&amp; ofamily == APR_UNSPEC) {</span>
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :         family = APR_INET;</span>
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :         (*new)-&gt;socketdes = socket(family, type|flags, protocol);</span>
+<span class="lineNum">     137 </span>                :            :     }
+<span class="lineNum">     138 </span>                :            : #endif
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 123 times"> + </span>]:<span class="lineCov">        123 :     if ((*new)-&gt;socketdes &lt; 0) {</span>
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :         return errno;</span>
+<span class="lineNum">     142 </span>                :            :     }
+<span class="lineNum">     143 </span>                :<span class="lineCov">        123 :     set_socket_vars(*new, family, type, protocol);</span>
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :            : #ifndef HAVE_SOCK_CLOEXEC
+<span class="lineNum">     146 </span>                :            :     {
+<span class="lineNum">     147 </span>                :            :         int flags;
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :            :         if ((flags = fcntl((*new)-&gt;socketdes, F_GETFD)) == -1)
+<span class="lineNum">     150 </span>                :            :             return errno;
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :            :         flags |= FD_CLOEXEC;
+<span class="lineNum">     153 </span>                :            :         if (fcntl((*new)-&gt;socketdes, F_SETFD, flags) == -1)
+<span class="lineNum">     154 </span>                :            :             return errno;
+<span class="lineNum">     155 </span>                :            :     }
+<span class="lineNum">     156 </span>                :            : #endif
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :<span class="lineCov">        123 :     (*new)-&gt;timeout = -1;</span>
+<span class="lineNum">     159 </span>                :<span class="lineCov">        123 :     (*new)-&gt;inherit = 0;</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">        123 :     apr_pool_cleanup_register((*new)-&gt;pool, (void *)(*new), socket_cleanup,</span>
+<span class="lineNum">     161 </span>                :            :                               socket_cleanup);
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :<span class="lineCov">        123 :     return APR_SUCCESS;</span>
+<span class="lineNum">     164 </span>                :            : } 
+<span class="lineNum">     165 </span>                :            : 
+<a name="166"><span class="lineNum">     166 </span>                :            : apr_status_t apr_socket_shutdown(apr_socket_t *thesocket, </a>
+<span class="lineNum">     167 </span>                :            :                                  apr_shutdown_how_e how)
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     169 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     return (shutdown(thesocket-&gt;socketdes, how) == -1) ? errno : APR_SUCCESS;</span>
+<span class="lineNum">     170 </span>                :            : }
+<a name="171"><span class="lineNum">     171 </span>                :            : </a>
+<span class="lineNum">     172 </span>                :            : apr_status_t apr_socket_close(apr_socket_t *thesocket)
+<span class="lineNum">     173 </span>                :<span class="lineCov">        127 : {</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">        127 :     return apr_pool_cleanup_run(thesocket-&gt;pool, thesocket, socket_cleanup);</span>
+<span class="lineNum">     175 </span>                :            : }
+<a name="176"><span class="lineNum">     176 </span>                :            : </a>
+<span class="lineNum">     177 </span>                :            : apr_status_t apr_socket_bind(apr_socket_t *sock, apr_sockaddr_t *sa)
+<span class="lineNum">     178 </span>                :<span class="lineCov">        110 : {</span>
+<span class="lineNum">     179 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 110 times"> + </span>]:<span class="lineCov">        110 :     if (bind(sock-&gt;socketdes, </span>
+<span class="lineNum">     180 </span>                :            :              (struct sockaddr *)&amp;sa-&gt;sa, sa-&gt;salen) == -1) {
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :         return errno;</span>
+<span class="lineNum">     182 </span>                :            :     }
+<span class="lineNum">     183 </span>                :            :     else {
+<span class="lineNum">     184 </span>                :<span class="lineCov">        110 :         sock-&gt;local_addr = sa;</span>
+<span class="lineNum">     185 </span>                :            :         /* XXX IPv6 - this assumes sin_port and sin6_port at same offset */
+<span class="lineNum">     186 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 110 times"> + </span>]:<span class="lineCov">        110 :         if (sock-&gt;local_addr-&gt;sa.sin.sin_port == 0) { /* no need for ntohs() when comparing w/ 0 */</span>
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :             sock-&gt;local_port_unknown = 1; /* kernel got us an ephemeral port */</span>
+<span class="lineNum">     188 </span>                :            :         }
+<span class="lineNum">     189 </span>                :<span class="lineCov">        110 :         return APR_SUCCESS;</span>
+<span class="lineNum">     190 </span>                :            :     }
+<span class="lineNum">     191 </span>                :            : }
+<a name="192"><span class="lineNum">     192 </span>                :            : </a>
+<span class="lineNum">     193 </span>                :            : apr_status_t apr_socket_listen(apr_socket_t *sock, apr_int32_t backlog)
+<span class="lineNum">     194 </span>                :<span class="lineCov">          6 : {</span>
+<span class="lineNum">     195 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :     if (listen(sock-&gt;socketdes, backlog) == -1)</span>
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :         return errno;</span>
+<span class="lineNum">     197 </span>                :            :     else
+<span class="lineNum">     198 </span>                :<span class="lineCov">          6 :         return APR_SUCCESS;</span>
+<span class="lineNum">     199 </span>                :            : }
+<span class="lineNum">     200 </span>                :            : 
+<a name="201"><span class="lineNum">     201 </span>                :            : apr_status_t apr_socket_accept(apr_socket_t **new, apr_socket_t *sock,</a>
+<span class="lineNum">     202 </span>                :            :                                apr_pool_t *connection_context)
+<span class="lineNum">     203 </span>                :<span class="lineCov">          6 : {</span>
+<span class="lineNum">     204 </span>                :            :     int s;
+<span class="lineNum">     205 </span>                :            :     apr_sockaddr_t sa;
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :<span class="lineCov">          6 :     sa.salen = sizeof(sa.sa);</span>
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :            : #ifdef HAVE_ACCEPT4
+<span class="lineNum">     210 </span>                :<span class="lineCov">          6 :     s = accept4(sock-&gt;socketdes, (struct sockaddr *)&amp;sa.sa, &amp;sa.salen, SOCK_CLOEXEC);</span>
+<span class="lineNum">     211 </span>                :            : #else
+<span class="lineNum">     212 </span>                :            :     s = accept(sock-&gt;socketdes, (struct sockaddr *)&amp;sa.sa, &amp;sa.salen);
+<span class="lineNum">     213 </span>                :            : #endif
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :     if (s &lt; 0) {</span>
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :         return errno;</span>
+<span class="lineNum">     217 </span>                :            :     }
+<span class="lineNum">     218 </span>                :            : #ifdef TPF
+<span class="lineNum">     219 </span>                :            :     if (s == 0) { 
+<span class="lineNum">     220 </span>                :            :         /* 0 is an invalid socket for TPF */
+<span class="lineNum">     221 </span>                :            :         return APR_EINTR;
+<span class="lineNum">     222 </span>                :            :     }
+<span class="lineNum">     223 </span>                :            : #endif
+<span class="lineNum">     224 </span>                :<span class="lineCov">          6 :     alloc_socket(new, connection_context);</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">          6 :     set_socket_vars(*new, sock-&gt;local_addr-&gt;sa.sin.sin_family, SOCK_STREAM, sock-&gt;protocol);</span>
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>                :            : #ifndef HAVE_POLL
+<span class="lineNum">     228 </span>                :            :     (*new)-&gt;connected = 1;
+<span class="lineNum">     229 </span>                :            : #endif
+<span class="lineNum">     230 </span>                :<span class="lineCov">          6 :     (*new)-&gt;timeout = -1;</span>
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :<span class="lineCov">          6 :     (*new)-&gt;remote_addr_unknown = 0;</span>
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :<span class="lineCov">          6 :     (*new)-&gt;socketdes = s;</span>
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :            :     /* Copy in peer's address. */
+<span class="lineNum">     237 </span>                :<span class="lineCov">          6 :     (*new)-&gt;remote_addr-&gt;sa = sa.sa;</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">          6 :     (*new)-&gt;remote_addr-&gt;salen = sa.salen;</span>
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>                :<span class="lineCov">          6 :     *(*new)-&gt;local_addr = *sock-&gt;local_addr;</span>
+<span class="lineNum">     241 </span>                :            : 
+<span class="lineNum">     242 </span>                :            :     /* The above assignment just overwrote the pool entry. Setting the local_addr 
+<span class="lineNum">     243 </span>                :            :        pool for the accepted socket back to what it should be.  Otherwise all 
+<span class="lineNum">     244 </span>                :            :        allocations for this socket will come from a server pool that is not
+<span class="lineNum">     245 </span>                :            :        freed until the process goes down.*/
+<span class="lineNum">     246 </span>                :<span class="lineCov">          6 :     (*new)-&gt;local_addr-&gt;pool = connection_context;</span>
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>                :            :     /* fix up any pointers which are no longer valid */
+<span class="lineNum">     249 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :     if (sock-&gt;local_addr-&gt;sa.sin.sin_family == AF_INET) {</span>
+<span class="lineNum">     250 </span>                :<span class="lineCov">          6 :         (*new)-&gt;local_addr-&gt;ipaddr_ptr = &amp;(*new)-&gt;local_addr-&gt;sa.sin.sin_addr;</span>
+<span class="lineNum">     251 </span>                :            :     }
+<span class="lineNum">     252 </span>                :            : #if APR_HAVE_IPV6
+<span class="lineNum">     253 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     else if (sock-&gt;local_addr-&gt;sa.sin.sin_family == AF_INET6) {</span>
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :         (*new)-&gt;local_addr-&gt;ipaddr_ptr = &amp;(*new)-&gt;local_addr-&gt;sa.sin6.sin6_addr;</span>
+<span class="lineNum">     255 </span>                :            :     }
+<span class="lineNum">     256 </span>                :            : #endif
+<span class="lineNum">     257 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :     (*new)-&gt;remote_addr-&gt;port = ntohs((*new)-&gt;remote_addr-&gt;sa.sin.sin_port);</span>
+<span class="lineNum">     258 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :     if (sock-&gt;local_port_unknown) {</span>
+<span class="lineNum">     259 </span>                :            :         /* not likely for a listening socket, but theoretically possible :) */
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :         (*new)-&gt;local_port_unknown = 1;</span>
+<span class="lineNum">     261 </span>                :            :     }
+<span class="lineNum">     262 </span>                :            : 
+<span class="lineNum">     263 </span>                :            : #if APR_TCP_NODELAY_INHERITED
+<span class="lineNum">     264 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :     if (apr_is_option_set(sock, APR_TCP_NODELAY) == 1) {</span>
+<span class="lineNum">     265 </span>                :<span class="lineNoCov">          0 :         apr_set_option(*new, APR_TCP_NODELAY, 1);</span>
+<span class="lineNum">     266 </span>                :            :     }
+<span class="lineNum">     267 </span>                :            : #endif /* TCP_NODELAY_INHERITED */
+<span class="lineNum">     268 </span>                :            : #if APR_O_NONBLOCK_INHERITED
+<span class="lineNum">     269 </span>                :            :     if (apr_is_option_set(sock, APR_SO_NONBLOCK) == 1) {
+<span class="lineNum">     270 </span>                :            :         apr_set_option(*new, APR_SO_NONBLOCK, 1);
+<span class="lineNum">     271 </span>                :            :     }
+<span class="lineNum">     272 </span>                :            : #endif /* APR_O_NONBLOCK_INHERITED */
+<span class="lineNum">     273 </span>                :            : 
+<span class="lineNum">     274 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 6 times"> + </span>]:<span class="lineCov">          6 :     if (sock-&gt;local_interface_unknown ||</span>
+<span class="lineNum">     275 </span>                :            :         !memcmp(sock-&gt;local_addr-&gt;ipaddr_ptr,
+<span class="lineNum">     276 </span>                :            :                 generic_inaddr_any,
+<span class="lineNum">     277 </span>                :            :                 sock-&gt;local_addr-&gt;ipaddr_len)) {
+<span class="lineNum">     278 </span>                :            :         /* If the interface address inside the listening socket's local_addr wasn't 
+<span class="lineNum">     279 </span>                :            :          * up-to-date, we don't know local interface of the connected socket either.
+<span class="lineNum">     280 </span>                :            :          *
+<span class="lineNum">     281 </span>                :            :          * If the listening socket was not bound to a specific interface, we
+<span class="lineNum">     282 </span>                :            :          * don't know the local_addr of the connected socket.
+<span class="lineNum">     283 </span>                :            :          */
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :         (*new)-&gt;local_interface_unknown = 1;</span>
+<span class="lineNum">     285 </span>                :            :     }
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :            : #ifndef HAVE_ACCEPT4
+<span class="lineNum">     288 </span>                :            :     {
+<span class="lineNum">     289 </span>                :            :         int flags;
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :            :         if ((flags = fcntl((*new)-&gt;socketdes, F_GETFD)) == -1)
+<span class="lineNum">     292 </span>                :            :             return errno;
+<span class="lineNum">     293 </span>                :            : 
+<span class="lineNum">     294 </span>                :            :         flags |= FD_CLOEXEC;
+<span class="lineNum">     295 </span>                :            :         if (fcntl((*new)-&gt;socketdes, F_SETFD, flags) == -1)
+<span class="lineNum">     296 </span>                :            :             return errno;
+<span class="lineNum">     297 </span>                :            :     }
+<span class="lineNum">     298 </span>                :            : #endif
+<span class="lineNum">     299 </span>                :            : 
+<span class="lineNum">     300 </span>                :<span class="lineCov">          6 :     (*new)-&gt;inherit = 0;</span>
+<span class="lineNum">     301 </span>                :<span class="lineCov">          6 :     apr_pool_cleanup_register((*new)-&gt;pool, (void *)(*new), socket_cleanup,</span>
+<span class="lineNum">     302 </span>                :            :                               socket_cleanup);
+<span class="lineNum">     303 </span>                :<span class="lineCov">          6 :     return APR_SUCCESS;</span>
+<span class="lineNum">     304 </span>                :            : }
+<a name="305"><span class="lineNum">     305 </span>                :            : </a>
+<span class="lineNum">     306 </span>                :            : apr_status_t apr_socket_connect(apr_socket_t *sock, apr_sockaddr_t *sa)
+<span class="lineNum">     307 </span>                :<span class="lineCov">          6 : {</span>
+<span class="lineNum">     308 </span>                :            :     int rc;        
+<span class="lineNum">     309 </span>                :            : 
+<span class="lineNum">     310 </span>                :            :     do {
+<span class="lineNum">     311 </span>                :<span class="lineCov">          6 :         rc = connect(sock-&gt;socketdes,</span>
+<span class="lineNum">     312 </span>                :            :                      (const struct sockaddr *)&amp;sa-&gt;sa.sin,
+<span class="lineNum">     313 </span>                :            :                      sa-&gt;salen);
+<span class="lineNum">     314 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 6 times"> + </span>]:<span class="lineCov">          6 :     } while (rc == -1 &amp;&amp; errno == EINTR);</span>
+<span class="lineNum">     315 </span>                :            : 
+<span class="lineNum">     316 </span>                :            :     /* we can see EINPROGRESS the first time connect is called on a non-blocking
+<span class="lineNum">     317 </span>                :            :      * socket; if called again, we can see EALREADY
+<span class="lineNum">     318 </span>                :            :      */
+<span class="lineNum">     319 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          6 :     if ((rc == -1) &amp;&amp; (errno == EINPROGRESS || errno == EALREADY)</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 5 was taken 5 times"> + </span><span class="branchCov" title="Branch 6 was taken 1 time"> + </span>]
+<span class="lineNum">     320 </span>                :            :                    &amp;&amp; (sock-&gt;timeout &gt; 0)) {
+<span class="lineNum">     321 </span>                :<span class="lineCov">          5 :         rc = apr_wait_for_io_or_timeout(NULL, sock, 0);</span>
+<span class="lineNum">     322 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         if (rc != APR_SUCCESS) {</span>
+<span class="lineNum">     323 </span>                :<span class="lineNoCov">          0 :             return rc;</span>
+<span class="lineNum">     324 </span>                :            :         }
+<span class="lineNum">     325 </span>                :            : 
+<span class="lineNum">     326 </span>                :            : #ifdef SO_ERROR
+<span class="lineNum">     327 </span>                :            :         {
+<span class="lineNum">     328 </span>                :            :             int error;
+<span class="lineNum">     329 </span>                :<span class="lineCov">          5 :             apr_socklen_t len = sizeof(error);</span>
+<span class="lineNum">     330 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :             if ((rc = getsockopt(sock-&gt;socketdes, SOL_SOCKET, SO_ERROR, </span>
+<span class="lineNum">     331 </span>                :            :                                  (char *)&amp;error, &amp;len)) &lt; 0) {
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :                 return errno;</span>
+<span class="lineNum">     333 </span>                :            :             }
+<span class="lineNum">     334 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :             if (error) {</span>
+<span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 :                 return error;</span>
+<span class="lineNum">     336 </span>                :            :             }
+<span class="lineNum">     337 </span>                :            :         }
+<span class="lineNum">     338 </span>                :            : #endif /* SO_ERROR */
+<span class="lineNum">     339 </span>                :            :     }
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          6 :     if (rc == -1 &amp;&amp; errno != EISCONN) {</span>
+<span class="lineNum">     342 </span>                :<span class="lineCov">          1 :         return errno;</span>
+<span class="lineNum">     343 </span>                :            :     }
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>        [<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          5 :     if (memcmp(sa-&gt;ipaddr_ptr, generic_inaddr_any, sa-&gt;ipaddr_len)) {</span>
+<span class="lineNum">     346 </span>                :            :         /* A real remote address was passed in.  If the unspecified
+<span class="lineNum">     347 </span>                :            :          * address was used, the actual remote addr will have to be
+<span class="lineNum">     348 </span>                :            :          * determined using getpeername() if required. */
+<span class="lineNum">     349 </span>                :            :         /* ### this should probably be a structure copy + fixup as per
+<span class="lineNum">     350 </span>                :            :          * _accept()'s handling of local_addr */
+<span class="lineNum">     351 </span>                :<span class="lineCov">          5 :         sock-&gt;remote_addr = sa;</span>
+<span class="lineNum">     352 </span>                :<span class="lineCov">          5 :         sock-&gt;remote_addr_unknown = 0;</span>
+<span class="lineNum">     353 </span>                :            :     }
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          5 :     if (sock-&gt;local_addr-&gt;port == 0) {</span>
+<span class="lineNum">     356 </span>                :            :         /* connect() got us an ephemeral port */
+<span class="lineNum">     357 </span>                :<span class="lineCov">          5 :         sock-&gt;local_port_unknown = 1;</span>
+<span class="lineNum">     358 </span>                :            :     }
+<span class="lineNum">     359 </span>        [<span class="branchCov" title="Branch 1 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          5 :     if (!memcmp(sock-&gt;local_addr-&gt;ipaddr_ptr,</span>
+<span class="lineNum">     360 </span>                :            :                 generic_inaddr_any,
+<span class="lineNum">     361 </span>                :            :                 sock-&gt;local_addr-&gt;ipaddr_len)) {
+<span class="lineNum">     362 </span>                :            :         /* not bound to specific local interface; connect() had to assign
+<span class="lineNum">     363 </span>                :            :          * one for the socket
+<span class="lineNum">     364 </span>                :            :          */
+<span class="lineNum">     365 </span>                :<span class="lineCov">          5 :         sock-&gt;local_interface_unknown = 1;</span>
+<span class="lineNum">     366 </span>                :            :     }
+<span class="lineNum">     367 </span>                :            : #ifndef HAVE_POLL
+<span class="lineNum">     368 </span>                :            :     sock-&gt;connected=1;
+<span class="lineNum">     369 </span>                :            : #endif
+<span class="lineNum">     370 </span>                :<span class="lineCov">          6 :     return APR_SUCCESS;</span>
+<span class="lineNum">     371 </span>                :            : }
+<a name="372"><span class="lineNum">     372 </span>                :            : </a>
+<span class="lineNum">     373 </span>                :            : apr_status_t apr_socket_type_get(apr_socket_t *sock, int *type)
+<span class="lineNum">     374 </span>                :<span class="lineCov">          2 : {</span>
+<span class="lineNum">     375 </span>                :<span class="lineCov">          2 :     *type = sock-&gt;type;</span>
+<span class="lineNum">     376 </span>                :<span class="lineCov">          2 :     return APR_SUCCESS;</span>
+<span class="lineNum">     377 </span>                :            : }
+<a name="378"><span class="lineNum">     378 </span>                :            : </a>
+<span class="lineNum">     379 </span>                :            : apr_status_t apr_socket_data_get(void **data, const char *key, apr_socket_t *sock)
+<span class="lineNum">     380 </span>                :<span class="lineCov">          2 : {</span>
+<span class="lineNum">     381 </span>                :<span class="lineCov">          2 :     sock_userdata_t *cur = sock-&gt;userdata;</span>
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :<span class="lineCov">          2 :     *data = NULL;</span>
+<span class="lineNum">     384 </span>                :            : 
+<span class="lineNum">     385 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     while (cur) {</span>
+<span class="lineNum">     386 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!strcmp(cur-&gt;key, key)) {</span>
+<span class="lineNum">     387 </span>                :<span class="lineCov">          2 :             *data = cur-&gt;data;</span>
+<span class="lineNum">     388 </span>                :<span class="lineCov">          2 :             break;</span>
+<span class="lineNum">     389 </span>                :            :         }
+<span class="lineNum">     390 </span>                :<span class="lineNoCov">          0 :         cur = cur-&gt;next;</span>
+<span class="lineNum">     391 </span>                :            :     }
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>                :<span class="lineCov">          2 :     return APR_SUCCESS;</span>
+<span class="lineNum">     394 </span>                :            : }
+<span class="lineNum">     395 </span>                :            : 
+<a name="396"><span class="lineNum">     396 </span>                :            : apr_status_t apr_socket_data_set(apr_socket_t *sock, void *data, const char *key,</a>
+<span class="lineNum">     397 </span>                :            :                                  apr_status_t (*cleanup) (void *))
+<span class="lineNum">     398 </span>                :<span class="lineCov">          2 : {</span>
+<span class="lineNum">     399 </span>                :<span class="lineCov">          2 :     sock_userdata_t *new = apr_palloc(sock-&gt;pool, sizeof(sock_userdata_t));</span>
+<span class="lineNum">     400 </span>                :            : 
+<span class="lineNum">     401 </span>                :<span class="lineCov">          2 :     new-&gt;key = apr_pstrdup(sock-&gt;pool, key);</span>
+<span class="lineNum">     402 </span>                :<span class="lineCov">          2 :     new-&gt;data = data;</span>
+<span class="lineNum">     403 </span>                :<span class="lineCov">          2 :     new-&gt;next = sock-&gt;userdata;</span>
+<span class="lineNum">     404 </span>                :<span class="lineCov">          2 :     sock-&gt;userdata = new;</span>
+<span class="lineNum">     405 </span>                :            : 
+<span class="lineNum">     406 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (cleanup) {</span>
+<span class="lineNum">     407 </span>                :<span class="lineNoCov">          0 :         apr_pool_cleanup_register(sock-&gt;pool, data, cleanup, cleanup);</span>
+<span class="lineNum">     408 </span>                :            :     }
+<span class="lineNum">     409 </span>                :            : 
+<span class="lineNum">     410 </span>                :<span class="lineCov">          2 :     return APR_SUCCESS;</span>
+<span class="lineNum">     411 </span>                :            : }
+<a name="412"><span class="lineNum">     412 </span>                :            : </a>
+<span class="lineNum">     413 </span>                :            : apr_status_t apr_os_sock_get(apr_os_sock_t *thesock, apr_socket_t *sock)
+<span class="lineNum">     414 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     415 </span>                :<span class="lineNoCov">          0 :     *thesock = sock-&gt;socketdes;</span>
+<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 :     return APR_SUCCESS;</span>
+<span class="lineNum">     417 </span>                :            : }
+<span class="lineNum">     418 </span>                :            : 
+<span class="lineNum">     419 </span>                :            : apr_status_t apr_os_sock_make(apr_socket_t **apr_sock, 
+<a name="420"><span class="lineNum">     420 </span>                :            :                               apr_os_sock_info_t *os_sock_info, </a>
+<span class="lineNum">     421 </span>                :            :                               apr_pool_t *cont)
+<span class="lineNum">     422 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     423 </span>                :<span class="lineNoCov">          0 :     alloc_socket(apr_sock, cont);</span>
+<span class="lineNum">     424 </span>                :<span class="lineNoCov">          0 :     set_socket_vars(*apr_sock, os_sock_info-&gt;family, os_sock_info-&gt;type, os_sock_info-&gt;protocol);</span>
+<span class="lineNum">     425 </span>                :<span class="lineNoCov">          0 :     (*apr_sock)-&gt;timeout = -1;</span>
+<span class="lineNum">     426 </span>                :<span class="lineNoCov">          0 :     (*apr_sock)-&gt;socketdes = *os_sock_info-&gt;os_sock;</span>
+<span class="lineNum">     427 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (os_sock_info-&gt;local) {</span>
+<span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :         memcpy(&amp;(*apr_sock)-&gt;local_addr-&gt;sa.sin, </span>
+<span class="lineNum">     429 </span>                :            :                os_sock_info-&gt;local, 
+<span class="lineNum">     430 </span>                :            :                (*apr_sock)-&gt;local_addr-&gt;salen);
+<span class="lineNum">     431 </span>                :            :         /* XXX IPv6 - this assumes sin_port and sin6_port at same offset */
+<span class="lineNum">     432 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (*apr_sock)-&gt;local_addr-&gt;port = ntohs((*apr_sock)-&gt;local_addr-&gt;sa.sin.sin_port);</span>
+<span class="lineNum">     433 </span>                :            :     }
+<span class="lineNum">     434 </span>                :            :     else {
+<span class="lineNum">     435 </span>                :<span class="lineNoCov">          0 :         (*apr_sock)-&gt;local_port_unknown = (*apr_sock)-&gt;local_interface_unknown = 1;</span>
+<span class="lineNum">     436 </span>                :            :     }
+<span class="lineNum">     437 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (os_sock_info-&gt;remote) {</span>
+<span class="lineNum">     438 </span>                :            : #ifndef HAVE_POLL
+<span class="lineNum">     439 </span>                :            :         (*apr_sock)-&gt;connected = 1;
+<span class="lineNum">     440 </span>                :            : #endif
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :         memcpy(&amp;(*apr_sock)-&gt;remote_addr-&gt;sa.sin, </span>
+<span class="lineNum">     442 </span>                :            :                os_sock_info-&gt;remote,
+<span class="lineNum">     443 </span>                :            :                (*apr_sock)-&gt;remote_addr-&gt;salen);
+<span class="lineNum">     444 </span>                :            :         /* XXX IPv6 - this assumes sin_port and sin6_port at same offset */
+<span class="lineNum">     445 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         (*apr_sock)-&gt;remote_addr-&gt;port = ntohs((*apr_sock)-&gt;remote_addr-&gt;sa.sin.sin_port);</span>
+<span class="lineNum">     446 </span>                :            :     }
+<span class="lineNum">     447 </span>                :            :     else {
+<span class="lineNum">     448 </span>                :<span class="lineNoCov">          0 :         (*apr_sock)-&gt;remote_addr_unknown = 1;</span>
+<span class="lineNum">     449 </span>                :            :     }
+<span class="lineNum">     450 </span>                :            :         
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 :     (*apr_sock)-&gt;inherit = 0;</span>
+<span class="lineNum">     452 </span>                :<span class="lineNoCov">          0 :     apr_pool_cleanup_register((*apr_sock)-&gt;pool, (void *)(*apr_sock), </span>
+<span class="lineNum">     453 </span>                :            :                               socket_cleanup, socket_cleanup);
+<span class="lineNum">     454 </span>                :<span class="lineNoCov">          0 :     return APR_SUCCESS;</span>
+<span class="lineNum">     455 </span>                :            : }
+<span class="lineNum">     456 </span>                :            : 
+<a name="457"><span class="lineNum">     457 </span>                :            : apr_status_t apr_os_sock_put(apr_socket_t **sock, apr_os_sock_t *thesock, </a>
+<span class="lineNum">     458 </span>                :            :                            apr_pool_t *cont)
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     460 </span>                :            :     /* XXX Bogus assumption that *sock points at anything legit */
+<span class="lineNum">     461 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if ((*sock) == NULL) {</span>
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :         alloc_socket(sock, cont);</span>
+<span class="lineNum">     463 </span>                :            :         /* XXX IPv6 figure out the family here! */
+<span class="lineNum">     464 </span>                :            :         /* XXX figure out the actual socket type here */
+<span class="lineNum">     465 </span>                :            :         /* *or* just decide that apr_os_sock_put() has to be told the family and type */
+<span class="lineNum">     466 </span>                :<span class="lineNoCov">          0 :         set_socket_vars(*sock, APR_INET, SOCK_STREAM, 0);</span>
+<span class="lineNum">     467 </span>                :<span class="lineNoCov">          0 :         (*sock)-&gt;timeout = -1;</span>
+<span class="lineNum">     468 </span>                :            :     }
+<span class="lineNum">     469 </span>                :<span class="lineNoCov">          0 :     (*sock)-&gt;local_port_unknown = (*sock)-&gt;local_interface_unknown = 1;</span>
+<span class="lineNum">     470 </span>                :<span class="lineNoCov">          0 :     (*sock)-&gt;remote_addr_unknown = 1;</span>
+<span class="lineNum">     471 </span>                :<span class="lineNoCov">          0 :     (*sock)-&gt;socketdes = *thesock;</span>
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :     return APR_SUCCESS;</span>
+<a name="473"><span class="lineNum">     473 </span>                :            : }</a>
+<span class="lineNum">     474 </span>                :            : 
+<a name="475"><span class="lineNum">     475 </span>                :<span class="lineNoCov">          0 : APR_POOL_IMPLEMENT_ACCESSOR(socket)</span></a>
+<span class="lineNum">     476 </span>                :            : 
+<a name="477"><span class="lineNum">     477 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 : APR_IMPLEMENT_INHERIT_SET(socket, inherit, pool, socket_cleanup)</span></a>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+<span class="lineNum">     478 </span>                :            : 
+<span class="lineNum">     479 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 : APR_IMPLEMENT_INHERIT_UNSET(socket, inherit, pool, socket_cleanup)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>][<span class="branchNoExec" title="Branch 9 was not executed"> # </span><span class="branchNoExec" title="Branch 10 was not executed"> # </span>]
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

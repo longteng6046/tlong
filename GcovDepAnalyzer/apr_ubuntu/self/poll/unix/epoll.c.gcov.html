@@ -1,0 +1,548 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>LCOV - self_test2.info - poll/unix/epoll.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">poll/unix</a> - epoll.c<span style="font-size: 80%;"> (source / <a href="epoll.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">self_test2.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">136</td>
+            <td class="headerCovTableEntry">163</td>
+            <td class="headerCovTableEntryMed">83.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2011-07-03</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">68</td>
+            <td class="headerCovTableEntry">118</td>
+            <td class="headerCovTableEntryLo">57.6 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Licensed to the Apache Software Foundation (ASF) under one or more</a>
+<span class="lineNum">       2 </span>                :            :  * contributor license agreements.  See the NOTICE file distributed with
+<span class="lineNum">       3 </span>                :            :  * this work for additional information regarding copyright ownership.
+<span class="lineNum">       4 </span>                :            :  * The ASF licenses this file to You under the Apache License, Version 2.0
+<span class="lineNum">       5 </span>                :            :  * (the &quot;License&quot;); you may not use this file except in compliance with
+<span class="lineNum">       6 </span>                :            :  * the License.  You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  *     http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &quot;apr.h&quot;
+<span class="lineNum">      18 </span>                :            : #include &quot;apr_poll.h&quot;
+<span class="lineNum">      19 </span>                :            : #include &quot;apr_time.h&quot;
+<span class="lineNum">      20 </span>                :            : #include &quot;apr_portable.h&quot;
+<span class="lineNum">      21 </span>                :            : #include &quot;apr_arch_file_io.h&quot;
+<span class="lineNum">      22 </span>                :            : #include &quot;apr_arch_networkio.h&quot;
+<span class="lineNum">      23 </span>                :            : #include &quot;apr_arch_poll_private.h&quot;
+<span class="lineNum">      24 </span>                :            : #include &quot;apr_arch_inherit.h&quot;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : #if defined(HAVE_EPOLL)
+<span class="lineNum">      27 </span>                :            : 
+<a name="28"><span class="lineNum">      28 </span>                :            : static apr_int16_t get_epoll_event(apr_int16_t event)</a>
+<span class="lineNum">      29 </span>                :            : {
+<span class="lineNum">      30 </span>                :<span class="lineCov">         57 :     apr_int16_t rv = 0;</span>
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 51 times"> + </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">         57 :     if (event &amp; APR_POLLIN)</span>
+<span class="lineNum">      33 </span>                :<span class="lineCov">         53 :         rv |= EPOLLIN;</span>
+<span class="lineNum">      34 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 55 times"> + </span>]:<span class="lineCov">         57 :     if (event &amp; APR_POLLPRI)</span>
+<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 :         rv |= EPOLLPRI;</span>
+<span class="lineNum">      36 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchCov" title="Branch 3 was taken 50 times"> + </span>]:<span class="lineCov">         57 :     if (event &amp; APR_POLLOUT)</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">          5 :         rv |= EPOLLOUT;</span>
+<span class="lineNum">      38 </span>                :            :     /* APR_POLLNVAL is not handled by epoll.  EPOLLERR and EPOLLHUP are return-only */
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :<span class="lineCov">         57 :     return rv;</span>
+<span class="lineNum">      41 </span>                :            : }
+<span class="lineNum">      42 </span>                :            : 
+<a name="43"><span class="lineNum">      43 </span>                :            : static apr_int16_t get_epoll_revent(apr_int16_t event)</a>
+<span class="lineNum">      44 </span>                :            : {
+<span class="lineNum">      45 </span>                :<span class="lineCov">         16 :     apr_int16_t rv = 0;</span>
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchCov" title="Branch 3 was taken 10 times"> + </span>]:<span class="lineCov">         16 :     if (event &amp; EPOLLIN)</span>
+<span class="lineNum">      48 </span>                :<span class="lineCov">          6 :         rv |= APR_POLLIN;</span>
+<span class="lineNum">      49 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 15 times"> + </span>]:<span class="lineCov">         16 :     if (event &amp; EPOLLPRI)</span>
+<span class="lineNum">      50 </span>                :<span class="lineNoCov">          0 :         rv |= APR_POLLPRI;</span>
+<span class="lineNum">      51 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 11 times"> + </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">         16 :     if (event &amp; EPOLLOUT)</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">         11 :         rv |= APR_POLLOUT;</span>
+<span class="lineNum">      53 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 15 times"> + </span>]:<span class="lineCov">         16 :     if (event &amp; EPOLLERR)</span>
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 :         rv |= APR_POLLERR;</span>
+<span class="lineNum">      55 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 15 times"> + </span>]:<span class="lineCov">         16 :     if (event &amp; EPOLLHUP)</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :         rv |= APR_POLLHUP;</span>
+<span class="lineNum">      57 </span>                :            :     /* APR_POLLNVAL is not handled by epoll. */
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :<span class="lineCov">         16 :     return rv;</span>
+<span class="lineNum">      60 </span>                :            : }
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            : struct apr_pollset_private_t
+<span class="lineNum">      63 </span>                :            : {
+<span class="lineNum">      64 </span>                :            :     int epoll_fd;
+<span class="lineNum">      65 </span>                :            :     struct epoll_event *pollset;
+<span class="lineNum">      66 </span>                :            :     apr_pollfd_t *result_set;
+<span class="lineNum">      67 </span>                :            : #if APR_HAS_THREADS
+<span class="lineNum">      68 </span>                :            :     /* A thread mutex to protect operations on the rings */
+<span class="lineNum">      69 </span>                :            :     apr_thread_mutex_t *ring_lock;
+<span class="lineNum">      70 </span>                :            : #endif
+<span class="lineNum">      71 </span>                :            :     /* A ring containing all of the pollfd_t that are active */
+<span class="lineNum">      72 </span>                :            :     APR_RING_HEAD(pfd_query_ring_t, pfd_elem_t) query_ring;
+<span class="lineNum">      73 </span>                :            :     /* A ring of pollfd_t that have been used, and then _remove()'d */
+<span class="lineNum">      74 </span>                :            :     APR_RING_HEAD(pfd_free_ring_t, pfd_elem_t) free_ring;
+<span class="lineNum">      75 </span>                :            :     /* A ring of pollfd_t where rings that have been _remove()`ed but
+<span class="lineNum">      76 </span>                :            :         might still be inside a _poll() */
+<span class="lineNum">      77 </span>                :            :     APR_RING_HEAD(pfd_dead_ring_t, pfd_elem_t) dead_ring;
+<span class="lineNum">      78 </span>                :            : };
+<a name="79"><span class="lineNum">      79 </span>                :            : </a>
+<span class="lineNum">      80 </span>                :            : static apr_status_t impl_pollset_cleanup(apr_pollset_t *pollset)
+<span class="lineNum">      81 </span>                :<span class="lineCov">         12 : {</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">         12 :     close(pollset-&gt;p-&gt;epoll_fd);</span>
+<span class="lineNum">      83 </span>                :<span class="lineCov">         12 :     return APR_SUCCESS;</span>
+<span class="lineNum">      84 </span>                :            : }
+<span class="lineNum">      85 </span>                :            : 
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            : static apr_status_t impl_pollset_create(apr_pollset_t *pollset,
+<span class="lineNum">      88 </span>                :            :                                         apr_uint32_t size,
+<a name="89"><span class="lineNum">      89 </span>                :            :                                         apr_pool_t *p,</a>
+<span class="lineNum">      90 </span>                :            :                                         apr_uint32_t flags)
+<span class="lineNum">      91 </span>                :<span class="lineCov">          4 : {</span>
+<span class="lineNum">      92 </span>                :            :     apr_status_t rv;
+<span class="lineNum">      93 </span>                :            :     int fd;
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            : #ifdef HAVE_EPOLL_CREATE1
+<span class="lineNum">      96 </span>                :<span class="lineCov">          4 :     fd = epoll_create1(EPOLL_CLOEXEC);</span>
+<span class="lineNum">      97 </span>                :            : #else
+<span class="lineNum">      98 </span>                :            :     fd = epoll_create(size);
+<span class="lineNum">      99 </span>                :            : #endif
+<span class="lineNum">     100 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :     if (fd &lt; 0) {</span>
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :         pollset-&gt;p = NULL;</span>
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :         return apr_get_netos_error();</span>
+<span class="lineNum">     103 </span>                :            :     }
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :            : #ifndef HAVE_EPOLL_CREATE1
+<span class="lineNum">     106 </span>                :            :     {
+<span class="lineNum">     107 </span>                :            :         int flags;
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :            :         if ((flags = fcntl(fd, F_GETFD)) == -1)
+<span class="lineNum">     110 </span>                :            :             return errno;
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            :         flags |= FD_CLOEXEC;
+<span class="lineNum">     113 </span>                :            :         if (fcntl(fd, F_SETFD, flags) == -1)
+<span class="lineNum">     114 </span>                :            :             return errno;
+<span class="lineNum">     115 </span>                :            :     }
+<span class="lineNum">     116 </span>                :            : #endif
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :<span class="lineCov">          4 :     pollset-&gt;p = apr_palloc(p, sizeof(apr_pollset_private_t));</span>
+<span class="lineNum">     119 </span>                :            : #if APR_HAS_THREADS
+<span class="lineNum">     120 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">          4 :     if ((flags &amp; APR_POLLSET_THREADSAFE) &amp;&amp;</span>
+<span class="lineNum">     121 </span>                :            :         !(flags &amp; APR_POLLSET_NOCOPY) &amp;&amp;
+<span class="lineNum">     122 </span>                :            :         ((rv = apr_thread_mutex_create(&amp;pollset-&gt;p-&gt;ring_lock,
+<span class="lineNum">     123 </span>                :            :                                        APR_THREAD_MUTEX_DEFAULT,
+<span class="lineNum">     124 </span>                :            :                                        p)) != APR_SUCCESS)) {
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :         pollset-&gt;p = NULL;</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :         return rv;</span>
+<span class="lineNum">     127 </span>                :            :     }
+<span class="lineNum">     128 </span>                :            : #else
+<span class="lineNum">     129 </span>                :            :     if (flags &amp; APR_POLLSET_THREADSAFE) {
+<span class="lineNum">     130 </span>                :            :         pollset-&gt;p = NULL;
+<span class="lineNum">     131 </span>                :            :         return APR_ENOTIMPL;
+<span class="lineNum">     132 </span>                :            :     }
+<span class="lineNum">     133 </span>                :            : #endif
+<span class="lineNum">     134 </span>                :<span class="lineCov">          4 :     pollset-&gt;p-&gt;epoll_fd = fd;</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">          4 :     pollset-&gt;p-&gt;pollset = apr_palloc(p, size * sizeof(struct epoll_event));</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">          4 :     pollset-&gt;p-&gt;result_set = apr_palloc(p, size * sizeof(apr_pollfd_t));</span>
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :     if (!(flags &amp; APR_POLLSET_NOCOPY)) {</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">          4 :         APR_RING_INIT(&amp;pollset-&gt;p-&gt;query_ring, pfd_elem_t, link);</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">          4 :         APR_RING_INIT(&amp;pollset-&gt;p-&gt;free_ring, pfd_elem_t, link);</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">          4 :         APR_RING_INIT(&amp;pollset-&gt;p-&gt;dead_ring, pfd_elem_t, link);</span>
+<span class="lineNum">     142 </span>                :            :     }
+<span class="lineNum">     143 </span>                :<span class="lineCov">          4 :     return APR_SUCCESS;</span>
+<span class="lineNum">     144 </span>                :            : }
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :            : static apr_status_t impl_pollset_add(apr_pollset_t *pollset,
+<span class="lineNum">     147 </span>                :            :                                      const apr_pollfd_t *descriptor)
+<span class="lineNum">     148 </span>                :<span class="lineCov">         55 : {</span>
+<span class="lineNum">     149 </span>                :<span class="lineCov">         55 :     struct epoll_event ev = {0};</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">         55 :     int ret = -1;</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">         55 :     pfd_elem_t *elem = NULL;</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">         55 :     apr_status_t rv = APR_SUCCESS;</span>
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :<span class="lineCov">        110 :     ev.events = get_epoll_event(descriptor-&gt;reqevents);</span>
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 55 times"> + </span>]:<span class="lineCov">         55 :     if (pollset-&gt;flags &amp; APR_POLLSET_NOCOPY) {</span>
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :         ev.data.ptr = (void *)descriptor;</span>
+<span class="lineNum">     158 </span>                :            :     }
+<span class="lineNum">     159 </span>                :            :     else {
+<span class="lineNum">     160 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 55 times"> + </span>]:<span class="lineCov">         55 :         pollset_lock_rings();</span>
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 55 times"> + </span>]:<span class="lineCov">         55 :         if (!APR_RING_EMPTY(&amp;(pollset-&gt;p-&gt;free_ring), pfd_elem_t, link)) {</span>
+<span class="lineNum">     163 </span>                :<span class="lineNoCov">          0 :             elem = APR_RING_FIRST(&amp;(pollset-&gt;p-&gt;free_ring));</span>
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :             APR_RING_REMOVE(elem, link);</span>
+<span class="lineNum">     165 </span>                :            :         }
+<span class="lineNum">     166 </span>                :            :         else {
+<span class="lineNum">     167 </span>                :<span class="lineCov">         55 :             elem = (pfd_elem_t *) apr_palloc(pollset-&gt;pool, sizeof(pfd_elem_t));</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">         55 :             APR_RING_ELEM_INIT(elem, link);</span>
+<span class="lineNum">     169 </span>                :            :         }
+<span class="lineNum">     170 </span>                :<span class="lineCov">         55 :         elem-&gt;pfd = *descriptor;</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">         55 :         ev.data.ptr = elem;</span>
+<span class="lineNum">     172 </span>                :            :     }
+<span class="lineNum">     173 </span>        [<span class="branchCov" title="Branch 0 was taken 55 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         55 :     if (descriptor-&gt;desc_type == APR_POLL_SOCKET) {</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">         55 :         ret = epoll_ctl(pollset-&gt;p-&gt;epoll_fd, EPOLL_CTL_ADD,</span>
+<span class="lineNum">     175 </span>                :            :                         descriptor-&gt;desc.s-&gt;socketdes, &amp;ev);
+<span class="lineNum">     176 </span>                :            :     }
+<span class="lineNum">     177 </span>                :            :     else {
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :         ret = epoll_ctl(pollset-&gt;p-&gt;epoll_fd, EPOLL_CTL_ADD,</span>
+<span class="lineNum">     179 </span>                :            :                         descriptor-&gt;desc.f-&gt;filedes, &amp;ev);
+<span class="lineNum">     180 </span>                :            :     }
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 55 times"> + </span>]:<span class="lineCov">         55 :     if (0 != ret) {</span>
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :         rv = apr_get_netos_error();</span>
+<span class="lineNum">     184 </span>                :            :     }
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>        [<span class="branchCov" title="Branch 0 was taken 55 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         55 :     if (!(pollset-&gt;flags &amp; APR_POLLSET_NOCOPY)) {</span>
+<span class="lineNum">     187 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 55 times"> + </span>]:<span class="lineCov">         55 :         if (rv != APR_SUCCESS) {</span>
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :             APR_RING_INSERT_TAIL(&amp;(pollset-&gt;p-&gt;free_ring), elem, pfd_elem_t, link);</span>
+<span class="lineNum">     189 </span>                :            :         }
+<span class="lineNum">     190 </span>                :            :         else {
+<span class="lineNum">     191 </span>                :<span class="lineCov">         55 :             APR_RING_INSERT_TAIL(&amp;(pollset-&gt;p-&gt;query_ring), elem, pfd_elem_t, link);</span>
+<span class="lineNum">     192 </span>                :            :         }
+<span class="lineNum">     193 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 55 times"> + </span>]:<span class="lineCov">         55 :         pollset_unlock_rings();</span>
+<span class="lineNum">     194 </span>                :            :     }
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :<span class="lineCov">         55 :     return rv;</span>
+<span class="lineNum">     197 </span>                :            : }
+<span class="lineNum">     198 </span>                :            : 
+<a name="199"><span class="lineNum">     199 </span>                :            : static apr_status_t impl_pollset_remove(apr_pollset_t *pollset,</a>
+<span class="lineNum">     200 </span>                :            :                                         const apr_pollfd_t *descriptor)
+<span class="lineNum">     201 </span>                :<span class="lineCov">          3 : {</span>
+<span class="lineNum">     202 </span>                :            :     pfd_elem_t *ep;
+<span class="lineNum">     203 </span>                :<span class="lineCov">          3 :     apr_status_t rv = APR_SUCCESS;</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">          3 :     struct epoll_event ev = {0}; /* ignored, but must be passed with</span>
+<span class="lineNum">     205 </span>                :            :                                   * kernel &lt; 2.6.9
+<span class="lineNum">     206 </span>                :            :                                   */
+<span class="lineNum">     207 </span>                :<span class="lineCov">          3 :     int ret = -1;</span>
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :     if (descriptor-&gt;desc_type == APR_POLL_SOCKET) {</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">          3 :         ret = epoll_ctl(pollset-&gt;p-&gt;epoll_fd, EPOLL_CTL_DEL,</span>
+<span class="lineNum">     211 </span>                :            :                         descriptor-&gt;desc.s-&gt;socketdes, &amp;ev);
+<span class="lineNum">     212 </span>                :            :     }
+<span class="lineNum">     213 </span>                :            :     else {
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :         ret = epoll_ctl(pollset-&gt;p-&gt;epoll_fd, EPOLL_CTL_DEL,</span>
+<span class="lineNum">     215 </span>                :            :                         descriptor-&gt;desc.f-&gt;filedes, &amp;ev);
+<span class="lineNum">     216 </span>                :            :     }
+<span class="lineNum">     217 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :     if (ret &lt; 0) {</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :         rv = APR_NOTFOUND;</span>
+<span class="lineNum">     219 </span>                :            :     }
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :     if (!(pollset-&gt;flags &amp; APR_POLLSET_NOCOPY)) {</span>
+<span class="lineNum">     222 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         pollset_lock_rings();</span>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :<span class="lineCov">          3 :         for (ep = APR_RING_FIRST(&amp;(pollset-&gt;p-&gt;query_ring));</span>
+<span class="lineNum">     225 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          5 :              ep != APR_RING_SENTINEL(&amp;(pollset-&gt;p-&gt;query_ring),</span>
+<span class="lineNum">     226 </span>                :            :                                      pfd_elem_t, link);
+<span class="lineNum">     227 </span>                :<span class="lineCov">          2 :              ep = APR_RING_NEXT(ep, link)) {</span>
+<span class="lineNum">     228 </span>                :            :                 
+<span class="lineNum">     229 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          5 :             if (descriptor-&gt;desc.s == ep-&gt;pfd.desc.s) {</span>
+<span class="lineNum">     230 </span>                :<span class="lineCov">          3 :                 APR_RING_REMOVE(ep, link);</span>
+<span class="lineNum">     231 </span>                :<span class="lineCov">          3 :                 APR_RING_INSERT_TAIL(&amp;(pollset-&gt;p-&gt;dead_ring),</span>
+<span class="lineNum">     232 </span>                :            :                                      ep, pfd_elem_t, link);
+<span class="lineNum">     233 </span>                :<span class="lineCov">          3 :                 break;</span>
+<span class="lineNum">     234 </span>                :            :             }
+<span class="lineNum">     235 </span>                :            :         }
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         pollset_unlock_rings();</span>
+<span class="lineNum">     238 </span>                :            :     }
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>                :<span class="lineCov">          3 :     return rv;</span>
+<span class="lineNum">     241 </span>                :            : }
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :            : static apr_status_t impl_pollset_poll(apr_pollset_t *pollset,
+<span class="lineNum">     244 </span>                :            :                                            apr_interval_time_t timeout,
+<span class="lineNum">     245 </span>                :            :                                            apr_int32_t *num,
+<span class="lineNum">     246 </span>                :            :                                            const apr_pollfd_t **descriptors)
+<span class="lineNum">     247 </span>                :<span class="lineCov">         12 : {</span>
+<span class="lineNum">     248 </span>                :            :     int ret, i, j;
+<span class="lineNum">     249 </span>                :<span class="lineCov">         12 :     apr_status_t rv = APR_SUCCESS;</span>
+<span class="lineNum">     250 </span>                :            :     apr_pollfd_t *fdptr;
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">         12 :     if (timeout &gt; 0) {</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">          3 :         timeout /= 1000;</span>
+<span class="lineNum">     254 </span>                :            :     }
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :<span class="lineCov">         12 :     ret = epoll_wait(pollset-&gt;p-&gt;epoll_fd, pollset-&gt;p-&gt;pollset, pollset-&gt;nalloc,</span>
+<span class="lineNum">     257 </span>                :            :                      timeout);
+<span class="lineNum">     258 </span>                :<span class="lineCov">         12 :     (*num) = ret;</span>
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :     if (ret &lt; 0) {</span>
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :         rv = apr_get_netos_error();</span>
+<span class="lineNum">     262 </span>                :            :     }
+<span class="lineNum">     263 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">         12 :     else if (ret == 0) {</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">          4 :         rv = APR_TIMEUP;</span>
+<span class="lineNum">     265 </span>                :            :     }
+<span class="lineNum">     266 </span>                :            :     else {
+<span class="lineNum">     267 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">         23 :         for (i = 0, j = 0; i &lt; ret; i++) {</span>
+<span class="lineNum">     268 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :             if (pollset-&gt;flags &amp; APR_POLLSET_NOCOPY) {</span>
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :                 fdptr = (apr_pollfd_t *)(pollset-&gt;p-&gt;pollset[i].data.ptr);</span>
+<span class="lineNum">     270 </span>                :            :             }
+<span class="lineNum">     271 </span>                :            :             else {
+<span class="lineNum">     272 </span>                :<span class="lineCov">         15 :                 fdptr = &amp;(((pfd_elem_t *) (pollset-&gt;p-&gt;pollset[i].data.ptr))-&gt;pfd);</span>
+<span class="lineNum">     273 </span>                :            :             }
+<span class="lineNum">     274 </span>                :            :             /* Check if the polled descriptor is our
+<span class="lineNum">     275 </span>                :            :              * wakeup pipe. In that case do not put it result set.
+<span class="lineNum">     276 </span>                :            :              */
+<span class="lineNum">     277 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         15 :             if ((pollset-&gt;flags &amp; APR_POLLSET_WAKEABLE) &amp;&amp;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     278 </span>                :            :                 fdptr-&gt;desc_type == APR_POLL_FILE &amp;&amp;
+<span class="lineNum">     279 </span>                :            :                 fdptr-&gt;desc.f == pollset-&gt;wakeup_pipe[0]) {
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                 apr_pollset_drain_wakeup_pipe(pollset);</span>
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :                 rv = APR_EINTR;</span>
+<span class="lineNum">     282 </span>                :            :             }
+<span class="lineNum">     283 </span>                :            :             else {
+<span class="lineNum">     284 </span>                :<span class="lineCov">         15 :                 pollset-&gt;p-&gt;result_set[j] = *fdptr;</span>
+<span class="lineNum">     285 </span>                :<span class="lineCov">         30 :                 pollset-&gt;p-&gt;result_set[j].rtnevents =</span>
+<span class="lineNum">     286 </span>                :            :                     get_epoll_revent(pollset-&gt;p-&gt;pollset[i].events);
+<span class="lineNum">     287 </span>                :<span class="lineCov">         15 :                 j++;</span>
+<span class="lineNum">     288 </span>                :            :             }
+<span class="lineNum">     289 </span>                :            :         }
+<span class="lineNum">     290 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          8 :         if (((*num) = j)) { /* any event besides wakeup pipe? */</span>
+<span class="lineNum">     291 </span>                :<span class="lineCov">          8 :             rv = APR_SUCCESS;</span>
+<span class="lineNum">     292 </span>                :            : 
+<span class="lineNum">     293 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          8 :             if (descriptors) {</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">          8 :                 *descriptors = pollset-&gt;p-&gt;result_set;</span>
+<span class="lineNum">     295 </span>                :            :             }
+<span class="lineNum">     296 </span>                :            :         }
+<span class="lineNum">     297 </span>                :            :     }
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         12 :     if (!(pollset-&gt;flags &amp; APR_POLLSET_NOCOPY)) {</span>
+<span class="lineNum">     300 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :         pollset_lock_rings();</span>
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :            :         /* Shift all PFDs in the Dead Ring to the Free Ring */
+<span class="lineNum">     303 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">         12 :         APR_RING_CONCAT(&amp;(pollset-&gt;p-&gt;free_ring), &amp;(pollset-&gt;p-&gt;dead_ring), pfd_elem_t, link);</span>
+<span class="lineNum">     304 </span>                :            : 
+<span class="lineNum">     305 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :         pollset_unlock_rings();</span>
+<span class="lineNum">     306 </span>                :            :     }
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :<span class="lineCov">         12 :     return rv;</span>
+<span class="lineNum">     309 </span>                :            : }
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :            : static apr_pollset_provider_t impl = {
+<span class="lineNum">     312 </span>                :            :     impl_pollset_create,
+<span class="lineNum">     313 </span>                :            :     impl_pollset_add,
+<span class="lineNum">     314 </span>                :            :     impl_pollset_remove,
+<span class="lineNum">     315 </span>                :            :     impl_pollset_poll,
+<span class="lineNum">     316 </span>                :            :     impl_pollset_cleanup,
+<span class="lineNum">     317 </span>                :            :     &quot;epoll&quot;
+<span class="lineNum">     318 </span>                :            : };
+<span class="lineNum">     319 </span>                :            : 
+<span class="lineNum">     320 </span>                :            : apr_pollset_provider_t *apr_pollset_provider_epoll = &amp;impl;
+<a name="321"><span class="lineNum">     321 </span>                :            : </a>
+<span class="lineNum">     322 </span>                :            : static apr_status_t cb_cleanup(void *p_)
+<span class="lineNum">     323 </span>                :<span class="lineCov">         12 : {</span>
+<span class="lineNum">     324 </span>                :<span class="lineCov">         12 :     apr_pollcb_t *pollcb = (apr_pollcb_t *) p_;</span>
+<span class="lineNum">     325 </span>                :<span class="lineCov">         12 :     close(pollcb-&gt;fd);</span>
+<span class="lineNum">     326 </span>                :<span class="lineCov">         12 :     return APR_SUCCESS;</span>
+<span class="lineNum">     327 </span>                :            : }
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :            : static apr_status_t impl_pollcb_create(apr_pollcb_t *pollcb,
+<span class="lineNum">     330 </span>                :            :                                        apr_uint32_t size,
+<a name="331"><span class="lineNum">     331 </span>                :            :                                        apr_pool_t *p,</a>
+<span class="lineNum">     332 </span>                :            :                                        apr_uint32_t flags)
+<span class="lineNum">     333 </span>                :<span class="lineCov">          4 : {</span>
+<span class="lineNum">     334 </span>                :            :     int fd;
+<span class="lineNum">     335 </span>                :            :     
+<span class="lineNum">     336 </span>                :            : #ifdef HAVE_EPOLL_CREATE1
+<span class="lineNum">     337 </span>                :<span class="lineCov">          4 :     fd = epoll_create1(EPOLL_CLOEXEC);</span>
+<span class="lineNum">     338 </span>                :            : #else
+<span class="lineNum">     339 </span>                :            :     fd = epoll_create(size);
+<span class="lineNum">     340 </span>                :            : #endif
+<span class="lineNum">     341 </span>                :            :     
+<span class="lineNum">     342 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :     if (fd &lt; 0) {</span>
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :         return apr_get_netos_error();</span>
+<span class="lineNum">     344 </span>                :            :     }
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :            : #ifndef HAVE_EPOLL_CREATE1
+<span class="lineNum">     347 </span>                :            :     {
+<span class="lineNum">     348 </span>                :            :         int flags;
+<span class="lineNum">     349 </span>                :            : 
+<span class="lineNum">     350 </span>                :            :         if ((flags = fcntl(fd, F_GETFD)) == -1)
+<span class="lineNum">     351 </span>                :            :             return errno;
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :            :         flags |= FD_CLOEXEC;
+<span class="lineNum">     354 </span>                :            :         if (fcntl(fd, F_SETFD, flags) == -1)
+<span class="lineNum">     355 </span>                :            :             return errno;
+<span class="lineNum">     356 </span>                :            :     }
+<span class="lineNum">     357 </span>                :            : #endif
+<span class="lineNum">     358 </span>                :            :     
+<span class="lineNum">     359 </span>                :<span class="lineCov">          4 :     pollcb-&gt;fd = fd;</span>
+<span class="lineNum">     360 </span>                :<span class="lineCov">          4 :     pollcb-&gt;pollset.epoll = apr_palloc(p, size * sizeof(struct epoll_event));</span>
+<span class="lineNum">     361 </span>                :<span class="lineCov">          4 :     apr_pool_cleanup_register(p, pollcb, cb_cleanup, apr_pool_cleanup_null);</span>
+<span class="lineNum">     362 </span>                :            : 
+<span class="lineNum">     363 </span>                :<span class="lineCov">          4 :     return APR_SUCCESS;</span>
+<span class="lineNum">     364 </span>                :            : }
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>                :            : static apr_status_t impl_pollcb_add(apr_pollcb_t *pollcb,
+<span class="lineNum">     367 </span>                :            :                                     apr_pollfd_t *descriptor)
+<span class="lineNum">     368 </span>                :<span class="lineCov">          2 : {</span>
+<span class="lineNum">     369 </span>                :            :     struct epoll_event ev;
+<span class="lineNum">     370 </span>                :            :     int ret;
+<span class="lineNum">     371 </span>                :            :     
+<span class="lineNum">     372 </span>                :<span class="lineCov">          4 :     ev.events = get_epoll_event(descriptor-&gt;reqevents);</span>
+<span class="lineNum">     373 </span>                :<span class="lineCov">          2 :     ev.data.ptr = (void *)descriptor;</span>
+<span class="lineNum">     374 </span>                :            : 
+<span class="lineNum">     375 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (descriptor-&gt;desc_type == APR_POLL_SOCKET) {</span>
+<span class="lineNum">     376 </span>                :<span class="lineCov">          2 :         ret = epoll_ctl(pollcb-&gt;fd, EPOLL_CTL_ADD,</span>
+<span class="lineNum">     377 </span>                :            :                         descriptor-&gt;desc.s-&gt;socketdes, &amp;ev);
+<span class="lineNum">     378 </span>                :            :     }
+<span class="lineNum">     379 </span>                :            :     else {
+<span class="lineNum">     380 </span>                :<span class="lineNoCov">          0 :         ret = epoll_ctl(pollcb-&gt;fd, EPOLL_CTL_ADD,</span>
+<span class="lineNum">     381 </span>                :            :                         descriptor-&gt;desc.f-&gt;filedes, &amp;ev);
+<span class="lineNum">     382 </span>                :            :     }
+<span class="lineNum">     383 </span>                :            :     
+<span class="lineNum">     384 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (ret == -1) {</span>
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :         return apr_get_netos_error();</span>
+<span class="lineNum">     386 </span>                :            :     }
+<span class="lineNum">     387 </span>                :            :     
+<span class="lineNum">     388 </span>                :<span class="lineCov">          2 :     return APR_SUCCESS;</span>
+<span class="lineNum">     389 </span>                :            : }
+<span class="lineNum">     390 </span>                :            : 
+<a name="391"><span class="lineNum">     391 </span>                :            : static apr_status_t impl_pollcb_remove(apr_pollcb_t *pollcb,</a>
+<span class="lineNum">     392 </span>                :            :                                        apr_pollfd_t *descriptor)
+<span class="lineNum">     393 </span>                :<span class="lineCov">          2 : {</span>
+<span class="lineNum">     394 </span>                :<span class="lineCov">          2 :     apr_status_t rv = APR_SUCCESS;</span>
+<span class="lineNum">     395 </span>                :<span class="lineCov">          2 :     struct epoll_event ev = {0}; /* ignored, but must be passed with</span>
+<span class="lineNum">     396 </span>                :            :                                   * kernel &lt; 2.6.9
+<span class="lineNum">     397 </span>                :            :                                   */
+<span class="lineNum">     398 </span>                :<span class="lineCov">          2 :     int ret = -1;</span>
+<span class="lineNum">     399 </span>                :            :     
+<span class="lineNum">     400 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (descriptor-&gt;desc_type == APR_POLL_SOCKET) {</span>
+<span class="lineNum">     401 </span>                :<span class="lineCov">          2 :         ret = epoll_ctl(pollcb-&gt;fd, EPOLL_CTL_DEL,</span>
+<span class="lineNum">     402 </span>                :            :                         descriptor-&gt;desc.s-&gt;socketdes, &amp;ev);
+<span class="lineNum">     403 </span>                :            :     }
+<span class="lineNum">     404 </span>                :            :     else {
+<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 :         ret = epoll_ctl(pollcb-&gt;fd, EPOLL_CTL_DEL,</span>
+<span class="lineNum">     406 </span>                :            :                         descriptor-&gt;desc.f-&gt;filedes, &amp;ev);
+<span class="lineNum">     407 </span>                :            :     }
+<span class="lineNum">     408 </span>                :            :     
+<span class="lineNum">     409 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (ret &lt; 0) {</span>
+<span class="lineNum">     410 </span>                :<span class="lineNoCov">          0 :         rv = APR_NOTFOUND;</span>
+<span class="lineNum">     411 </span>                :            :     }
+<span class="lineNum">     412 </span>                :            :     
+<span class="lineNum">     413 </span>                :<span class="lineCov">          2 :     return rv;</span>
+<span class="lineNum">     414 </span>                :            : }
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>                :            : 
+<span class="lineNum">     417 </span>                :            : static apr_status_t impl_pollcb_poll(apr_pollcb_t *pollcb,
+<span class="lineNum">     418 </span>                :            :                                      apr_interval_time_t timeout,
+<span class="lineNum">     419 </span>                :            :                                      apr_pollcb_cb_t func,
+<span class="lineNum">     420 </span>                :            :                                      void *baton)
+<span class="lineNum">     421 </span>                :<span class="lineCov">          3 : {</span>
+<span class="lineNum">     422 </span>                :            :     int ret, i;
+<span class="lineNum">     423 </span>                :<span class="lineCov">          3 :     apr_status_t rv = APR_SUCCESS;</span>
+<span class="lineNum">     424 </span>                :            :     
+<span class="lineNum">     425 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :     if (timeout &gt; 0) {</span>
+<span class="lineNum">     426 </span>                :<span class="lineCov">          2 :         timeout /= 1000;</span>
+<span class="lineNum">     427 </span>                :            :     }
+<span class="lineNum">     428 </span>                :            :     
+<span class="lineNum">     429 </span>                :<span class="lineCov">          3 :     ret = epoll_wait(pollcb-&gt;fd, pollcb-&gt;pollset.epoll, pollcb-&gt;nalloc,</span>
+<span class="lineNum">     430 </span>                :            :                      timeout);
+<span class="lineNum">     431 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :     if (ret &lt; 0) {</span>
+<span class="lineNum">     432 </span>                :<span class="lineNoCov">          0 :         rv = apr_get_netos_error();</span>
+<span class="lineNum">     433 </span>                :            :     }
+<span class="lineNum">     434 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :     else if (ret == 0) {</span>
+<span class="lineNum">     435 </span>                :<span class="lineCov">          2 :         rv = APR_TIMEUP;</span>
+<span class="lineNum">     436 </span>                :            :     }
+<span class="lineNum">     437 </span>                :            :     else {
+<span class="lineNum">     438 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         for (i = 0; i &lt; ret; i++) {</span>
+<span class="lineNum">     439 </span>                :<span class="lineCov">          1 :             apr_pollfd_t *pollfd = (apr_pollfd_t *)(pollcb-&gt;pollset.epoll[i].data.ptr);</span>
+<span class="lineNum">     440 </span>                :<span class="lineCov">          2 :             pollfd-&gt;rtnevents = get_epoll_revent(pollcb-&gt;pollset.epoll[i].events);</span>
+<span class="lineNum">     441 </span>                :            : 
+<span class="lineNum">     442 </span>                :<span class="lineCov">          1 :             rv = func(baton, pollfd);</span>
+<span class="lineNum">     443 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :             if (rv) {</span>
+<span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :                 return rv;</span>
+<span class="lineNum">     445 </span>                :            :             }
+<span class="lineNum">     446 </span>                :            :         }
+<span class="lineNum">     447 </span>                :            :     }
+<span class="lineNum">     448 </span>                :            :     
+<span class="lineNum">     449 </span>                :<span class="lineCov">          3 :     return rv;</span>
+<span class="lineNum">     450 </span>                :            : }
+<span class="lineNum">     451 </span>                :            : 
+<span class="lineNum">     452 </span>                :            : static apr_pollcb_provider_t impl_cb = {
+<span class="lineNum">     453 </span>                :            :     impl_pollcb_create,
+<span class="lineNum">     454 </span>                :            :     impl_pollcb_add,
+<span class="lineNum">     455 </span>                :            :     impl_pollcb_remove,
+<span class="lineNum">     456 </span>                :            :     impl_pollcb_poll,
+<span class="lineNum">     457 </span>                :            :     &quot;epoll&quot;
+<span class="lineNum">     458 </span>                :            : };
+<span class="lineNum">     459 </span>                :            : 
+<span class="lineNum">     460 </span>                :            : apr_pollcb_provider_t *apr_pollcb_provider_epoll = &amp;impl_cb;
+<span class="lineNum">     461 </span>                :            : 
+<span class="lineNum">     462 </span>                :            : #endif /* HAVE_EPOLL */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

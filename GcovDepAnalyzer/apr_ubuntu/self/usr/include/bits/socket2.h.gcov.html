@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>LCOV - self_test2.info - /usr/include/bits/socket2.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">usr/include/bits</a> - socket2.h<span style="font-size: 80%;"> (source / <a href="socket2.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">self_test2.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">33.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2011-07-03</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryLo">8.3 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Checking macros for socket functions.</a>
+<span class="lineNum">       2 </span>                :            :    Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+<span class="lineNum">       3 </span>                :            :    This file is part of the GNU C Library.
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            :    The GNU C Library is free software; you can redistribute it and/or
+<span class="lineNum">       6 </span>                :            :    modify it under the terms of the GNU Lesser General Public
+<span class="lineNum">       7 </span>                :            :    License as published by the Free Software Foundation; either
+<span class="lineNum">       8 </span>                :            :    version 2.1 of the License, or (at your option) any later version.
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :            :    The GNU C Library is distributed in the hope that it will be useful,
+<span class="lineNum">      11 </span>                :            :    but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      12 </span>                :            :    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+<span class="lineNum">      13 </span>                :            :    Lesser General Public License for more details.
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            :    You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      16 </span>                :            :    License along with the GNU C Library; if not, write to the Free
+<span class="lineNum">      17 </span>                :            :    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+<span class="lineNum">      18 </span>                :            :    02111-1307 USA.  */
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #ifndef _SYS_SOCKET_H
+<span class="lineNum">      21 </span>                :            : # error &quot;Never include &lt;bits/socket2.h&gt; directly; use &lt;sys/socket.h&gt; instead.&quot;
+<span class="lineNum">      22 </span>                :            : #endif
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : extern ssize_t __recv_chk (int __fd, void *__buf, size_t __n, size_t __buflen,
+<span class="lineNum">      25 </span>                :            :                            int __flags);
+<span class="lineNum">      26 </span>                :            : extern ssize_t __REDIRECT (__recv_alias, (int __fd, void *__buf, size_t __n,
+<span class="lineNum">      27 </span>                :            :                                           int __flags), recv);
+<span class="lineNum">      28 </span>                :            : extern ssize_t __REDIRECT (__recv_chk_warn,
+<span class="lineNum">      29 </span>                :            :                            (int __fd, void *__buf, size_t __n, size_t __buflen,
+<span class="lineNum">      30 </span>                :            :                             int __flags), __recv_chk)
+<span class="lineNum">      31 </span>                :            :      __warnattr (&quot;recv called with bigger length than size of destination &quot;
+<span class="lineNum">      32 </span>                :            :                  &quot;buffer&quot;);
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : __extern_always_inline ssize_t
+<span class="lineNum">      35 </span>                :            : recv (int __fd, void *__buf, size_t __n, int __flags)
+<span class="lineNum">      36 </span>                :            : {
+<span class="lineNum">      37 </span>                :            :   if (__bos0 (__buf) != (size_t) -1)
+<span class="lineNum">      38 </span>                :            :     {
+<span class="lineNum">      39 </span>                :            :       if (!__builtin_constant_p (__n))
+<span class="lineNum">      40 </span>                :            :         return __recv_chk (__fd, __buf, __n, __bos0 (__buf), __flags);
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            :       if (__n &gt; __bos0 (__buf))
+<span class="lineNum">      43 </span>                :            :         return __recv_chk_warn (__fd, __buf, __n, __bos0 (__buf), __flags);
+<span class="lineNum">      44 </span>                :            :     }
+<span class="lineNum">      45 </span>                :            :   return __recv_alias (__fd, __buf, __n, __flags);
+<span class="lineNum">      46 </span>                :            : }
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : extern ssize_t __recvfrom_chk (int __fd, void *__restrict __buf, size_t __n,
+<span class="lineNum">      49 </span>                :            :                                size_t __buflen, int __flags,
+<span class="lineNum">      50 </span>                :            :                                __SOCKADDR_ARG __addr,
+<span class="lineNum">      51 </span>                :            :                                socklen_t *__restrict __addr_len);
+<span class="lineNum">      52 </span>                :            : extern ssize_t __REDIRECT (__recvfrom_alias,
+<span class="lineNum">      53 </span>                :            :                            (int __fd, void *__restrict __buf, size_t __n,
+<span class="lineNum">      54 </span>                :            :                             int __flags, __SOCKADDR_ARG __addr,
+<span class="lineNum">      55 </span>                :            :                             socklen_t *__restrict __addr_len), recvfrom);
+<span class="lineNum">      56 </span>                :            : extern ssize_t __REDIRECT (__recvfrom_chk_warn,
+<span class="lineNum">      57 </span>                :            :                            (int __fd, void *__restrict __buf, size_t __n,
+<span class="lineNum">      58 </span>                :            :                             size_t __buflen, int __flags,
+<span class="lineNum">      59 </span>                :            :                             __SOCKADDR_ARG __addr,
+<span class="lineNum">      60 </span>                :            :                             socklen_t *__restrict __addr_len), __recvfrom_chk)
+<span class="lineNum">      61 </span>                :            :      __warnattr (&quot;recvfrom called with bigger length than size of &quot;
+<span class="lineNum">      62 </span>                :            :                  &quot;destination buffer&quot;);
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            : __extern_always_inline ssize_t
+<span class="lineNum">      65 </span>                :            : recvfrom (int __fd, void *__restrict __buf, size_t __n, int __flags,
+<span class="lineNum">      66 </span>                :            :           __SOCKADDR_ARG __addr, socklen_t *__restrict __addr_len)
+<span class="lineNum">      67 </span>                :            : {
+<span class="lineNum">      68 </span>[<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 10 times"> + </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">         10 :   if (__bos0 (__buf) != (size_t) -1)</span>
+<span class="lineNum">      69 </span>                :            :     {
+<span class="lineNum">      70 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (!__builtin_constant_p (__n))</span>
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :         return __recvfrom_chk (__fd, __buf, __n, __bos0 (__buf), __flags,</span>
+<span class="lineNum">      72 </span>                :            :                                __addr, __addr_len);
+<span class="lineNum">      73 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (__n &gt; __bos0 (__buf))</span>
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :         return __recvfrom_chk_warn (__fd, __buf, __n, __bos0 (__buf), __flags,</span>
+<span class="lineNum">      75 </span>                :            :                                     __addr, __addr_len);
+<span class="lineNum">      76 </span>                :            :     }
+<span class="lineNum">      77 </span>                :<span class="lineCov">         10 :   return __recvfrom_alias (__fd, __buf, __n, __flags, __addr, __addr_len);</span>
+<span class="lineNum">      78 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
