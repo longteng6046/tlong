@@ -1,0 +1,398 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>LCOV - self_test2.info - network_io/unix/multicast.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">network_io/unix</a> - multicast.c<span style="font-size: 80%;"> (source / <a href="multicast.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">self_test2.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">93</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2011-07-03</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Licensed to the Apache Software Foundation (ASF) under one or more</a>
+<span class="lineNum">       2 </span>                :            :  * contributor license agreements.  See the NOTICE file distributed with
+<span class="lineNum">       3 </span>                :            :  * this work for additional information regarding copyright ownership.
+<span class="lineNum">       4 </span>                :            :  * The ASF licenses this file to You under the Apache License, Version 2.0
+<span class="lineNum">       5 </span>                :            :  * (the &quot;License&quot;); you may not use this file except in compliance with
+<span class="lineNum">       6 </span>                :            :  * the License.  You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  *     http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &quot;apr_arch_networkio.h&quot;
+<span class="lineNum">      18 </span>                :            : #include &quot;apr_network_io.h&quot;
+<span class="lineNum">      19 </span>                :            : #include &quot;apr_support.h&quot;
+<span class="lineNum">      20 </span>                :            : #include &quot;apr_portable.h&quot;
+<span class="lineNum">      21 </span>                :            : #include &quot;apr_arch_inherit.h&quot;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #ifdef HAVE_GETIFADDRS
+<span class="lineNum">      24 </span>                :            : #include &lt;net/if.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;ifaddrs.h&gt;
+<span class="lineNum">      26 </span>                :            : #endif
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : #ifdef HAVE_STRUCT_IPMREQ
+<span class="lineNum">      29 </span>                :            : static void fill_mip_v4(struct ip_mreq *mip, apr_sockaddr_t *mcast,
+<a name="30"><span class="lineNum">      30 </span>                :            :                         apr_sockaddr_t *iface)</a>
+<span class="lineNum">      31 </span>                :            : {
+<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :     mip-&gt;imr_multiaddr = mcast-&gt;sa.sin.sin_addr;</span>
+<span class="lineNum">      33 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (iface == NULL) {</span>
+<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 :         mip-&gt;imr_interface.s_addr = INADDR_ANY;</span>
+<span class="lineNum">      35 </span>                :            :     }
+<span class="lineNum">      36 </span>                :            :     else {
+<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :         mip-&gt;imr_interface = iface-&gt;sa.sin.sin_addr;</span>
+<span class="lineNum">      38 </span>                :            :     }
+<span class="lineNum">      39 </span>                :            : }
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : /* This function is only interested in AF_INET6 sockets, so a noop
+<span class="lineNum">      42 </span>                :            :  * &quot;return 0&quot; implementation for the !APR_HAVE_IPV6 build is
+<a name="43"><span class="lineNum">      43 </span>                :            :  * sufficient. */</a>
+<span class="lineNum">      44 </span>                :            : static unsigned int find_if_index(const apr_sockaddr_t *iface)
+<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 :     unsigned int index = 0;</span>
+<span class="lineNum">      47 </span>                :            : #if defined(HAVE_GETIFADDRS) &amp;&amp; APR_HAVE_IPV6 
+<span class="lineNum">      48 </span>                :            :     struct ifaddrs *ifp, *ifs;
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            :     /**
+<span class="lineNum">      51 </span>                :            :      * TODO: getifaddrs is only portable to *BSD and OS X. Using ioctl 
+<span class="lineNum">      52 </span>                :            :      *       and SIOCGIFCONF is needed for Linux/Solaris support.
+<span class="lineNum">      53 </span>                :            :      *       
+<span class="lineNum">      54 </span>                :            :      *       There is a wrapper that takes the messy ioctl interface into 
+<span class="lineNum">      55 </span>                :            :      *       getifaddrs. The license is acceptable, but, It is a fairly large 
+<span class="lineNum">      56 </span>                :            :      *       chunk of code.
+<span class="lineNum">      57 </span>                :            :      */
+<span class="lineNum">      58 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (getifaddrs(&amp;ifs) != 0) {</span>
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">      60 </span>                :            :     }
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (ifp = ifs; ifp; ifp = ifp-&gt;ifa_next) {</span>
+<span class="lineNum">      63 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ifp-&gt;ifa_addr != NULL &amp;&amp; ifp-&gt;ifa_addr-&gt;sa_family == AF_INET6) {</span>
+<span class="lineNum">      64 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (memcmp(&amp;iface-&gt;sa.sin6.sin6_addr,</span>
+<span class="lineNum">      65 </span>                :            :                        &amp;ifp-&gt;ifa_addr-&gt;sa_data[0],
+<span class="lineNum">      66 </span>                :            :                        sizeof(iface-&gt;sa.sin6.sin6_addr)) == 0) {
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :                 index = if_nametoindex(ifp-&gt;ifa_name);</span>
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">      69 </span>                :            :             }
+<span class="lineNum">      70 </span>                :            :         }
+<span class="lineNum">      71 </span>                :            :     }
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 :     freeifaddrs(ifs);</span>
+<span class="lineNum">      74 </span>                :            : #endif
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :     return index;</span>
+<span class="lineNum">      76 </span>                :            : }
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            : #if APR_HAVE_IPV6
+<span class="lineNum">      79 </span>                :            : static void fill_mip_v6(struct ipv6_mreq *mip, const apr_sockaddr_t *mcast,
+<span class="lineNum">      80 </span>                :            :                         const apr_sockaddr_t *iface)
+<span class="lineNum">      81 </span>                :            : {
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :     memcpy(&amp;mip-&gt;ipv6mr_multiaddr, mcast-&gt;ipaddr_ptr,</span>
+<span class="lineNum">      83 </span>                :            :            sizeof(mip-&gt;ipv6mr_multiaddr));
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (iface == NULL) {</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :         mip-&gt;ipv6mr_interface = 0;</span>
+<span class="lineNum">      87 </span>                :            :     }
+<span class="lineNum">      88 </span>                :            :     else {
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         mip-&gt;ipv6mr_interface = find_if_index(iface);</span>
+<span class="lineNum">      90 </span>                :            :     }
+<span class="lineNum">      91 </span>                :            : }
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :            : #endif
+<span class="lineNum">      94 </span>                :            : 
+<a name="95"><span class="lineNum">      95 </span>                :            : static int sock_is_ipv4(apr_socket_t *sock)</a>
+<span class="lineNum">      96 </span>                :            : {
+<span class="lineNum">      97 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (sock-&gt;local_addr-&gt;family == APR_INET)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :         return 1;</span>
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :     return 0;</span>
+<span class="lineNum">     100 </span>                :            : }
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            : #if APR_HAVE_IPV6
+<span class="lineNum">     103 </span>                :            : static int sock_is_ipv6(apr_socket_t *sock)
+<span class="lineNum">     104 </span>                :            : {
+<span class="lineNum">     105 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (sock-&gt;local_addr-&gt;family == APR_INET6)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :         return 1;</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :     return 0;</span>
+<span class="lineNum">     108 </span>                :            : }
+<span class="lineNum">     109 </span>                :            : #endif
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>                :            : static apr_status_t do_mcast(int type, apr_socket_t *sock,
+<span class="lineNum">     112 </span>                :            :                              apr_sockaddr_t *mcast, apr_sockaddr_t *iface,
+<span class="lineNum">     113 </span>                :            :                              apr_sockaddr_t *source)
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     115 </span>                :            :     struct ip_mreq mip4;
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :     apr_status_t rv = APR_SUCCESS;</span>
+<span class="lineNum">     117 </span>                :            : #if APR_HAVE_IPV6
+<span class="lineNum">     118 </span>                :            :     struct ipv6_mreq mip6;
+<span class="lineNum">     119 </span>                :            : #endif
+<span class="lineNum">     120 </span>                :            : #ifdef GROUP_FILTER_SIZE
+<span class="lineNum">     121 </span>                :            :     struct group_source_req mip;
+<span class="lineNum">     122 </span>                :            :     int ip_proto;
+<span class="lineNum">     123 </span>                :            : #endif
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (source != NULL) {</span>
+<span class="lineNum">     126 </span>                :            : #ifdef GROUP_FILTER_SIZE
+<span class="lineNum">     127 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (sock_is_ipv4(sock)) {</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :             ip_proto = IPPROTO_IP;</span>
+<span class="lineNum">     129 </span>                :            :         } 
+<span class="lineNum">     130 </span>                :            : #if APR_HAVE_IPV6
+<span class="lineNum">     131 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (sock_is_ipv6(sock)) {</span>
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :             ip_proto = IPPROTO_IPV6;</span>
+<span class="lineNum">     133 </span>                :            :         }
+<span class="lineNum">     134 </span>                :            : #endif
+<span class="lineNum">     135 </span>                :            :         else {
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :             return APR_ENOTIMPL;</span>
+<span class="lineNum">     137 </span>                :            :         }
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (type == IP_ADD_MEMBERSHIP)</span>
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :             type = MCAST_JOIN_SOURCE_GROUP;</span>
+<span class="lineNum">     141 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (type == IP_DROP_MEMBERSHIP)</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :             type = MCAST_LEAVE_SOURCE_GROUP;</span>
+<span class="lineNum">     143 </span>                :            :         else
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :             return APR_ENOTIMPL;</span>
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :         mip.gsr_interface = find_if_index(iface);</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :         memcpy(&amp;mip.gsr_group, mcast-&gt;ipaddr_ptr, sizeof(mip.gsr_group));</span>
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :         memcpy(&amp;mip.gsr_source, source-&gt;ipaddr_ptr, sizeof(mip.gsr_source));</span>
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (setsockopt(sock-&gt;socketdes, ip_proto, type, (const void *) &amp;mip,</span>
+<span class="lineNum">     151 </span>                :            :                        sizeof(mip)) == -1) {
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :             rv = errno;</span>
+<span class="lineNum">     153 </span>                :            :         }
+<span class="lineNum">     154 </span>                :            : #else
+<span class="lineNum">     155 </span>                :            :         /* We do not support Source-Specific Multicast. */
+<span class="lineNum">     156 </span>                :            :         return APR_ENOTIMPL;
+<span class="lineNum">     157 </span>                :            : #endif
+<span class="lineNum">     158 </span>                :            :     }
+<span class="lineNum">     159 </span>                :            :     else {
+<span class="lineNum">     160 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (sock_is_ipv4(sock)) {</span>
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :            :             fill_mip_v4(&amp;mip4, mcast, iface);
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (setsockopt(sock-&gt;socketdes, IPPROTO_IP, type,</span>
+<span class="lineNum">     165 </span>                :            :                            (const void *) &amp;mip4, sizeof(mip4)) == -1) {
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :                 rv = errno;</span>
+<span class="lineNum">     167 </span>                :            :             }
+<span class="lineNum">     168 </span>                :            :         }
+<span class="lineNum">     169 </span>                :            : #if APR_HAVE_IPV6 &amp;&amp; defined(IPV6_JOIN_GROUP) &amp;&amp; defined(IPV6_LEAVE_GROUP)
+<span class="lineNum">     170 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (sock_is_ipv6(sock)) {</span>
+<span class="lineNum">     171 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (type == IP_ADD_MEMBERSHIP) {</span>
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :                 type = IPV6_JOIN_GROUP;</span>
+<span class="lineNum">     173 </span>                :            :             }
+<span class="lineNum">     174 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             else if (type == IP_DROP_MEMBERSHIP) {</span>
+<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :                 type = IPV6_LEAVE_GROUP;</span>
+<span class="lineNum">     176 </span>                :            :             }
+<span class="lineNum">     177 </span>                :            :             else {
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :                 return APR_ENOTIMPL;</span>
+<span class="lineNum">     179 </span>                :            :             }
+<span class="lineNum">     180 </span>                :            : 
+<span class="lineNum">     181 </span>                :            :             fill_mip_v6(&amp;mip6, mcast, iface);
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (setsockopt(sock-&gt;socketdes, IPPROTO_IPV6, type,</span>
+<span class="lineNum">     184 </span>                :            :                            (const void *) &amp;mip6, sizeof(mip6)) == -1) {
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :                 rv = errno;</span>
+<span class="lineNum">     186 </span>                :            :             }
+<span class="lineNum">     187 </span>                :            :         }
+<span class="lineNum">     188 </span>                :            : #endif
+<span class="lineNum">     189 </span>                :            :         else {
+<span class="lineNum">     190 </span>                :<span class="lineNoCov">          0 :             rv = APR_ENOTIMPL;</span>
+<span class="lineNum">     191 </span>                :            :         }
+<span class="lineNum">     192 </span>                :            :     }
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :     return rv;</span>
+<span class="lineNum">     194 </span>                :            : }
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :            : static apr_status_t do_mcast_opt(int type, apr_socket_t *sock,
+<span class="lineNum">     197 </span>                :            :                                  apr_byte_t value)
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :     apr_status_t rv = APR_SUCCESS;</span>
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (sock_is_ipv4(sock)) {</span>
+<span class="lineNum">     202 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (setsockopt(sock-&gt;socketdes, IPPROTO_IP, type,</span>
+<span class="lineNum">     203 </span>                :            :                        (const void *) &amp;value, sizeof(value)) == -1) {
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :             rv = errno;</span>
+<span class="lineNum">     205 </span>                :            :         }
+<span class="lineNum">     206 </span>                :            :     }
+<span class="lineNum">     207 </span>                :            : #if APR_HAVE_IPV6
+<span class="lineNum">     208 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     else if (sock_is_ipv6(sock) &amp;&amp; type == IP_MULTICAST_LOOP) {</span>
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :         unsigned int loopopt = value;</span>
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         type = IPV6_MULTICAST_LOOP;</span>
+<span class="lineNum">     211 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (setsockopt(sock-&gt;socketdes, IPPROTO_IPV6, type,</span>
+<span class="lineNum">     212 </span>                :            :                        (const void *) &amp;loopopt, sizeof(loopopt)) == -1) {
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :             rv = errno;</span>
+<span class="lineNum">     214 </span>                :            :         }
+<span class="lineNum">     215 </span>                :            :     }
+<span class="lineNum">     216 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     else if (sock_is_ipv6(sock)) {</span>
+<span class="lineNum">     217 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (type == IP_MULTICAST_TTL) {</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :             type = IPV6_MULTICAST_HOPS;</span>
+<span class="lineNum">     219 </span>                :            :         }
+<span class="lineNum">     220 </span>                :            :         else {
+<span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 :             return APR_ENOTIMPL;</span>
+<span class="lineNum">     222 </span>                :            :         }
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (setsockopt(sock-&gt;socketdes, IPPROTO_IPV6, type,</span>
+<span class="lineNum">     225 </span>                :            :                        &amp;value, sizeof(value)) == -1) {
+<span class="lineNum">     226 </span>                :<span class="lineNoCov">          0 :             rv = errno;</span>
+<span class="lineNum">     227 </span>                :            :         }
+<span class="lineNum">     228 </span>                :            :     }
+<span class="lineNum">     229 </span>                :            : #endif
+<span class="lineNum">     230 </span>                :            :     else {
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :         rv = APR_ENOTIMPL;</span>
+<span class="lineNum">     232 </span>                :            :     }
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :     return rv;</span>
+<span class="lineNum">     235 </span>                :            : }
+<span class="lineNum">     236 </span>                :            : #endif
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :            : APR_DECLARE(apr_status_t) apr_mcast_join(apr_socket_t *sock,
+<span class="lineNum">     239 </span>                :            :                                          apr_sockaddr_t *join,
+<a name="240"><span class="lineNum">     240 </span>                :            :                                          apr_sockaddr_t *iface,</a>
+<span class="lineNum">     241 </span>                :            :                                          apr_sockaddr_t *source)
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     243 </span>                :            : #if defined(IP_ADD_MEMBERSHIP) &amp;&amp; defined(HAVE_STRUCT_IPMREQ)
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :     return do_mcast(IP_ADD_MEMBERSHIP, sock, join, iface, source);</span>
+<span class="lineNum">     245 </span>                :            : #else
+<span class="lineNum">     246 </span>                :            :     return APR_ENOTIMPL;
+<span class="lineNum">     247 </span>                :            : #endif
+<span class="lineNum">     248 </span>                :            : }
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            : APR_DECLARE(apr_status_t) apr_mcast_leave(apr_socket_t *sock,
+<span class="lineNum">     251 </span>                :            :                                           apr_sockaddr_t *addr,
+<a name="252"><span class="lineNum">     252 </span>                :            :                                           apr_sockaddr_t *iface,</a>
+<span class="lineNum">     253 </span>                :            :                                           apr_sockaddr_t *source)
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     255 </span>                :            : #if defined(IP_DROP_MEMBERSHIP) &amp;&amp; defined(HAVE_STRUCT_IPMREQ)
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 :     return do_mcast(IP_DROP_MEMBERSHIP, sock, addr, iface, source);</span>
+<span class="lineNum">     257 </span>                :            : #else
+<span class="lineNum">     258 </span>                :            :     return APR_ENOTIMPL;
+<span class="lineNum">     259 </span>                :            : #endif
+<span class="lineNum">     260 </span>                :            : }
+<a name="261"><span class="lineNum">     261 </span>                :            : </a>
+<span class="lineNum">     262 </span>                :            : APR_DECLARE(apr_status_t) apr_mcast_hops(apr_socket_t *sock, apr_byte_t ttl)
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     264 </span>                :            : #if defined(IP_MULTICAST_TTL) &amp;&amp; defined(HAVE_STRUCT_IPMREQ)
+<span class="lineNum">     265 </span>                :<span class="lineNoCov">          0 :     return do_mcast_opt(IP_MULTICAST_TTL, sock, ttl);</span>
+<span class="lineNum">     266 </span>                :            : #else
+<span class="lineNum">     267 </span>                :            :     return APR_ENOTIMPL;
+<span class="lineNum">     268 </span>                :            : #endif
+<span class="lineNum">     269 </span>                :            : }
+<span class="lineNum">     270 </span>                :            : 
+<a name="271"><span class="lineNum">     271 </span>                :            : APR_DECLARE(apr_status_t) apr_mcast_loopback(apr_socket_t *sock,</a>
+<span class="lineNum">     272 </span>                :            :                                              apr_byte_t opt)
+<span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     274 </span>                :            : #if defined(IP_MULTICAST_LOOP) &amp;&amp; defined(HAVE_STRUCT_IPMREQ)
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :     return do_mcast_opt(IP_MULTICAST_LOOP, sock, opt);</span>
+<span class="lineNum">     276 </span>                :            : #else
+<span class="lineNum">     277 </span>                :            :     return APR_ENOTIMPL;
+<span class="lineNum">     278 </span>                :            : #endif
+<span class="lineNum">     279 </span>                :            : }
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :            : APR_DECLARE(apr_status_t) apr_mcast_interface(apr_socket_t *sock,
+<span class="lineNum">     282 </span>                :            :                                               apr_sockaddr_t *iface)
+<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     284 </span>                :            : #if defined(IP_MULTICAST_IF) &amp;&amp; defined(HAVE_STRUCT_IPMREQ)
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :     apr_status_t rv = APR_SUCCESS;</span>
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (sock_is_ipv4(sock)) {</span>
+<span class="lineNum">     288 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (setsockopt(sock-&gt;socketdes, IPPROTO_IP, IP_MULTICAST_IF,</span>
+<span class="lineNum">     289 </span>                :            :                        (const void *) &amp;iface-&gt;sa.sin.sin_addr,
+<span class="lineNum">     290 </span>                :            :                        sizeof(iface-&gt;sa.sin.sin_addr)) == -1) {
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :             rv = errno;</span>
+<span class="lineNum">     292 </span>                :            :         }
+<span class="lineNum">     293 </span>                :            :     }
+<span class="lineNum">     294 </span>                :            : #if APR_HAVE_IPV6
+<span class="lineNum">     295 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     else if (sock_is_ipv6(sock)) {</span>
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :         unsigned int idx = find_if_index(iface);</span>
+<span class="lineNum">     297 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (setsockopt(sock-&gt;socketdes, IPPROTO_IPV6, IPV6_MULTICAST_IF,</span>
+<span class="lineNum">     298 </span>                :            :                        (const void *) &amp;idx, sizeof(idx)) == -1) {
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :             rv = errno;</span>
+<span class="lineNum">     300 </span>                :            :         }
+<span class="lineNum">     301 </span>                :            :     }
+<span class="lineNum">     302 </span>                :            : #endif
+<span class="lineNum">     303 </span>                :            :     else {
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :         rv = APR_ENOTIMPL;</span>
+<span class="lineNum">     305 </span>                :            :     }
+<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :     return rv;</span>
+<span class="lineNum">     307 </span>                :            : #else
+<span class="lineNum">     308 </span>                :            :     return APR_ENOTIMPL;
+<span class="lineNum">     309 </span>                :            : #endif
+<span class="lineNum">     310 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

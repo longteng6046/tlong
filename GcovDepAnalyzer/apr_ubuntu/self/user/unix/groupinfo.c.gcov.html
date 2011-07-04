@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>LCOV - self_test2.info - user/unix/groupinfo.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">user/unix</a> - groupinfo.c<span style="font-size: 80%;"> (source / <a href="groupinfo.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">self_test2.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2011-07-03</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Licensed to the Apache Software Foundation (ASF) under one or more</a>
+<span class="lineNum">       2 </span>                :            :  * contributor license agreements.  See the NOTICE file distributed with
+<span class="lineNum">       3 </span>                :            :  * this work for additional information regarding copyright ownership.
+<span class="lineNum">       4 </span>                :            :  * The ASF licenses this file to You under the Apache License, Version 2.0
+<span class="lineNum">       5 </span>                :            :  * (the &quot;License&quot;); you may not use this file except in compliance with
+<span class="lineNum">       6 </span>                :            :  * the License.  You may obtain a copy of the License at
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  *     http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       9 </span>                :            :  *
+<span class="lineNum">      10 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      11 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      12 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &quot;apr_strings.h&quot;
+<span class="lineNum">      18 </span>                :            : #include &quot;apr_portable.h&quot;
+<span class="lineNum">      19 </span>                :            : #include &quot;apr_user.h&quot;
+<span class="lineNum">      20 </span>                :            : #include &quot;apr_private.h&quot;
+<span class="lineNum">      21 </span>                :            : #ifdef HAVE_GRP_H
+<span class="lineNum">      22 </span>                :            : #include &lt;grp.h&gt;
+<span class="lineNum">      23 </span>                :            : #endif
+<span class="lineNum">      24 </span>                :            : #if APR_HAVE_SYS_TYPES_H
+<span class="lineNum">      25 </span>                :            : #include &lt;sys/types.h&gt;
+<span class="lineNum">      26 </span>                :            : #endif
+<span class="lineNum">      27 </span>                :            : #if APR_HAVE_UNISTD_H
+<span class="lineNum">      28 </span>                :            : #include &lt;unistd.h&gt; /* for _POSIX_THREAD_SAFE_FUNCTIONS */
+<span class="lineNum">      29 </span>                :            : #endif
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : #define GRBUF_SIZE 8192
+<span class="lineNum">      32 </span>                :            : 
+<a name="33"><span class="lineNum">      33 </span>                :            : APR_DECLARE(apr_status_t) apr_gid_name_get(char **groupname, apr_gid_t groupid,</a>
+<span class="lineNum">      34 </span>                :            :                                            apr_pool_t *p)
+<span class="lineNum">      35 </span>                :<span class="lineCov">          1 : {</span>
+<span class="lineNum">      36 </span>                :            :     struct group *gr;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : #if APR_HAS_THREADS &amp;&amp; defined(_POSIX_THREAD_SAFE_FUNCTIONS) &amp;&amp; defined(HAVE_GETGRGID_R)
+<span class="lineNum">      39 </span>                :            :     struct group grp;
+<span class="lineNum">      40 </span>                :            :     char grbuf[GRBUF_SIZE];
+<span class="lineNum">      41 </span>                :            :     apr_status_t rv;
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            :     /* See comment in getpwnam_safe on error handling. */
+<span class="lineNum">      44 </span>                :<span class="lineCov">          1 :     rv = getgrgid_r(groupid, &amp;grp, grbuf, sizeof(grbuf), &amp;gr);</span>
+<span class="lineNum">      45 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (rv) {</span>
+<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 :         return rv;</span>
+<span class="lineNum">      47 </span>                :            :     }
+<span class="lineNum">      48 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (gr == NULL) {</span>
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 :         return APR_ENOENT;</span>
+<span class="lineNum">      50 </span>                :            :     }
+<span class="lineNum">      51 </span>                :            : #else
+<span class="lineNum">      52 </span>                :            :     errno = 0;
+<span class="lineNum">      53 </span>                :            :     if ((gr = getgrgid(groupid)) == NULL) {
+<span class="lineNum">      54 </span>                :            :         return errno ? errno : APR_ENOENT;
+<span class="lineNum">      55 </span>                :            :     }
+<span class="lineNum">      56 </span>                :            : #endif
+<span class="lineNum">      57 </span>                :<span class="lineCov">          1 :     *groupname = apr_pstrdup(p, gr-&gt;gr_name);</span>
+<span class="lineNum">      58 </span>                :<span class="lineCov">          1 :     return APR_SUCCESS;</span>
+<span class="lineNum">      59 </span>                :            : }
+<span class="lineNum">      60 </span>                :            :   
+<a name="61"><span class="lineNum">      61 </span>                :            : APR_DECLARE(apr_status_t) apr_gid_get(apr_gid_t *groupid, </a>
+<span class="lineNum">      62 </span>                :            :                                       const char *groupname, apr_pool_t *p)
+<span class="lineNum">      63 </span>                :<span class="lineCov">          1 : {</span>
+<span class="lineNum">      64 </span>                :            :     struct group *gr;
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : #if APR_HAS_THREADS &amp;&amp; defined(_POSIX_THREAD_SAFE_FUNCTIONS) &amp;&amp; defined(HAVE_GETGRNAM_R)
+<span class="lineNum">      67 </span>                :            :     struct group grp;
+<span class="lineNum">      68 </span>                :            :     char grbuf[GRBUF_SIZE];
+<span class="lineNum">      69 </span>                :            :     apr_status_t rv;
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            :     /* See comment in getpwnam_safe on error handling. */
+<span class="lineNum">      72 </span>                :<span class="lineCov">          1 :     rv = getgrnam_r(groupname, &amp;grp, grbuf, sizeof(grbuf), &amp;gr);</span>
+<span class="lineNum">      73 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (rv) {</span>
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :         return rv;</span>
+<span class="lineNum">      75 </span>                :            :     }
+<span class="lineNum">      76 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :     if (gr == NULL) {</span>
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :         return APR_ENOENT;</span>
+<span class="lineNum">      78 </span>                :            :     }
+<span class="lineNum">      79 </span>                :            : #else
+<span class="lineNum">      80 </span>                :            :     errno = 0;
+<span class="lineNum">      81 </span>                :            :     if ((gr = getgrnam(groupname)) == NULL) {
+<span class="lineNum">      82 </span>                :            :         return errno ? errno : APR_ENOENT;
+<span class="lineNum">      83 </span>                :            :     }
+<span class="lineNum">      84 </span>                :            : #endif
+<span class="lineNum">      85 </span>                :<span class="lineCov">          1 :     *groupid = gr-&gt;gr_gid;</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">          1 :     return APR_SUCCESS;</span>
+<span class="lineNum">      87 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
