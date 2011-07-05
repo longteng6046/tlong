@@ -67,6 +67,9 @@ lineSum = {}
 funSum = {}
 brSum = {}
 
+# prefix list with default values.
+prefixList = ['/usr/home/tlong/apr/', '/home/tlong/new_workspace/apr/', '/home/tlong/openmpi/', '/usr/home/tlong/openmpi/']
+
 for item in contentList:
 
     if item not in lineCovData:
@@ -92,7 +95,33 @@ for item in contentList:
 
         if line.startswith('SF:'):
             sourceFile = line[3:]
+
+
+            
             if sourceFile.endswith('.c'):
+
+                # check prefix, then only use relative path as key.
+                foundPrefix = False
+                for prefix in prefixList:
+                    if sourceFile.startswith(prefix):
+                        sourceFile = sourceFile[len(prefix):]
+                        # print sourceFile
+                        foundPrefix = True
+                        break
+
+                if foundPrefix == False:
+                    print "source:",sourceFile
+                    prefix=raw_input("Please input the prefix to the pkg directory:")
+                    if not sourceFile.startswith(prefix):
+                        print "Error, wrong prefix inputed!"
+                        sys.exit(1)
+                    prefixList.append(prefix)
+                    sourceFile = sourceFile[len(prefix):]
+                    # print sourceFile
+                
+                    
+
+
                 isCFile = True
                 if sourceFile not in lineCovData[item]:
                     lineCovData[item][sourceFile] = {}
@@ -498,8 +527,9 @@ for item in infoList:
             for ssItem in funCovData[item][sItem]:
                 if funCovData[item][sItem][ssItem] != 0 and \
                        (sItem not in funCovData[unitName] or \
-                        funCovData[unitName][sItem][ssItem] == 0 or \
-                        ssItem not in funCovData[unitName][sItem]):
+                        ssItem not in funCovData[unitName][sItem] or \
+                        funCovData[unitName][sItem][ssItem] == 0
+                        ):
                     counter += 1
         fileName = item.split('/')[-1].split('.')[0]
         print fileName, ':', str(float(counter) / float(totalFun) * 100) + '%'
@@ -515,8 +545,9 @@ for item in infoList:
             for ssItem in brCovData[item][sItem]:
                 if brCovData[item][sItem][ssItem] != 0 and \
                        (sItem not in brCovData[unitName] or \
-                        brCovData[unitName][sItem][ssItem] == 0 or \
-                        ssItem not in brCovData[unitName][sItem]):
+                        ssItem not in brCovData[unitName][sItem] or \
+                        brCovData[unitName][sItem][ssItem] == 0
+                        ):
                     counter += 1
         fileName = item.split('/')[-1].split('.')[0]
         print fileName, ':', str(float(counter) / float(totalBr) * 100) + '%'
@@ -564,6 +595,7 @@ counter = 0
 for item in lineStat:
     if lineStat[item] != 0 and \
            (item[0] not in lineCovData[unitName] or \
+            item[1] not in lineCovData[unitName][item[0]] or \
             lineCovData[unitName][item[0]][item[1]] == 0):
         counter += 1
 print "line_cov:", str(float(counter) / float(totalLine) * 100) + '%'
@@ -572,6 +604,7 @@ counter = 0
 for item in funStat:
     if funStat[item] != 0 and \
            (item[0] not in funCovData[unitName] or \
+            item[1] not in funCovData[unitName][item[0]] or \
             funCovData[unitName][item[0]][item[1]] == 0):
         counter += 1
 print "fun_cov:", str(float(counter) / float(totalFun) * 100) + '%'
@@ -580,6 +613,7 @@ counter = 0
 for item in brStat:
     if brStat[item] != 0 and \
            (item[0] not in brCovData[unitName] or \
+            item[1] not in brCovData[unitName][item[0]] or \
             brCovData[unitName][item[0]][item[1]] == 0):
         counter += 1
 print "br_cov:", str(float(counter) / float(totalBr) * 100) + '%'
@@ -636,6 +670,7 @@ for i in range(0, len(infoList)):
     for item in lineStat_single:
         if lineStat_single[item] == i and \
                (item[0] not in lineCovData[unitName] or \
+                item[1] not in lineCovData[unitName][item[0]] or \
                 lineCovData[unitName][item[0]][item[1]] == 0):
             counter += 1
     cov = float(counter) / float(totalLine)
@@ -647,6 +682,7 @@ for i in range(0, len(infoList)):
     for item in funStat_single:
         if funStat_single[item] == i and \
                (item[0] not in funCovData[unitName] or \
+                item[1] not in funCovData[unitName][item[0]] or \
                 funCovData[unitName][item[0]][item[1]] == 0):
             counter += 1
     cov = float(counter) / float(totalFun)
@@ -659,6 +695,7 @@ for i in range(0, len(infoList)):
     for item in brStat_single:
         if brStat_single[item] == i and \
                (item[0] not in brCovData[unitName] or \
+                item[1] not in brCovData[unitName][item[0]] or \
                 brCovData[unitName][item[0]][item[1]] == 0):
             counter += 1
     cov = float(counter) / float(totalBr)
