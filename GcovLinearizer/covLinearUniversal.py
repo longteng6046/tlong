@@ -68,7 +68,7 @@ funSum = {}
 brSum = {}
 
 # prefix list with default values.
-prefixList = ['/usr/home/tlong/apr/', '/home/tlong/new_workspace/apr/', '/home/tlong/openmpi/', '/usr/home/tlong/openmpi/']
+prefixList = ['/usr/home/tlong/apr/', '/home/tlong/new_workspace/apr/', '/home/tlong/openmpi/', '/usr/home/tlong/openmpi/', '/home/tlong/workspace/apache-httpd/','/home/tlong/workspace/openmp/']
 
 for item in contentList:
 
