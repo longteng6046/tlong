@@ -21,14 +21,11 @@ import os
 
 # Step 1: get the .info file list.
 
-if len(sys.argv) != 2:
-    print >> sys.stderr, "Error: Format: python covLinear.py DIR/TO/.INFO/FILES"
-    # print "This goes to the stdout."
+if len(sys.argv) != 3:
+    print >> sys.stderr, "Error: Format: python covLinear.py DIR/TO/.INFO/FILES OUTPUT/FILE"
     sys.exit(1)
 
 fileDir = os.path.abspath(sys.argv[1])
-
-# print "file path: ", fileDir
 
 infoList = []
 
@@ -39,9 +36,9 @@ for item in os.listdir(fileDir):
 
 infoList.sort()
 
-contentList = {}
+contentList = {} # opened info files
 for item in infoList:
-    # print item
+
     contentList[item] = open(item, 'r')
 
 # print contentList
@@ -70,6 +67,10 @@ brSum = {}
 # prefix list with default values.
 prefixList = ['/usr/home/tlong/apr/', '/home/tlong/new_workspace/apr/', '/home/tlong/openmpi/', '/usr/home/tlong/openmpi/', '/home/tlong/workspace/apache-httpd/','/home/tlong/workspace/openmp/']
 
+# testList, indicating the path of test sources.
+testList = ['apr-1.4.2/test/']
+
+
 for item in contentList:
 
     if item not in lineCovData:
@@ -96,10 +97,7 @@ for item in contentList:
         if line.startswith('SF:'):
             sourceFile = line[3:]
 
-
-            
             if sourceFile.endswith('.c'):
-
                 # check prefix, then only use relative path as key.
                 foundPrefix = False
                 for prefix in prefixList:
@@ -119,9 +117,17 @@ for item in contentList:
                     sourceFile = sourceFile[len(prefix):]
                     # print sourceFile
                 
-                    
 
-
+                # omit test files:
+                isTest = False
+                for pref in testList:
+                    if sourceFile.startswith(pref):
+                        isTest = True
+                        break
+                if isTest == True:
+                    isCFile = False
+                    continue
+                
                 isCFile = True
                 if sourceFile not in lineCovData[item]:
                     lineCovData[item][sourceFile] = {}
@@ -132,9 +138,9 @@ for item in contentList:
                     funSum[item][sourceFile] = {}
                     brSum[item][sourceFile] = {}
                 else:
-                    print >> sys.stderr, "Error: duplicated source file:"
-                    print >> sys.stderr, "Filename: ", item
-                    print >> sys.stderr, "Source file name: ", sourceFile
+                    # print >> sys.stderr, "Error: duplicated source file:"
+                    # print >> sys.stderr, "Filename: ", item
+                    # print >> sys.stderr, "Source file name: ", sourceFile
                     # sys.exit(1)
                     continue
             elif sourceFile.endswith('.h'):
@@ -150,7 +156,7 @@ for item in contentList:
                 continue
                 # sys.exit(1)
 
-        # if it is currently a '.h' file, then skip the current line
+        # if the current line is not about a '.c' file, then skip it
         elif isCFile == False:
             continue
 
@@ -158,7 +164,12 @@ for item in contentList:
             funName = line.split(',')[1]
             # print funName
             # print line
-            funCovData[item][sourceFile][funName] = None
+            if funName not in funCovData[item][sourceFile]:
+                funCovData[item][sourceFile][funName] = None
+            else:
+                # print >> sys.stderr, "the function already there."
+                # print >> sys.stderr, sourceFile, ":", funName
+                None
             continue
         
         elif line.startswith('FNDA:'):
@@ -171,40 +182,60 @@ for item in contentList:
             # detected, but this hitting record will be recorded.
             if funName not in funCovData[item][sourceFile]: 
                 funCovData[item][sourceFile][funName] = None
+                print >> sys.stderr, "bug of gcov happened, function hit before detected."
             if funCovData[item][sourceFile][funName] == None:
                 funCovData[item][sourceFile][funName] = int(hitTimes)
             else:
-                print >> sys.stderr, "Error: muliple function hit record."
-                print >> sys.stderr, "file: ", item
-                print >> sys.stderr, "source file: ", sourceFile
-                print >> sys.stderr, "function name: ", funName
-                sys.exit(1)
+                funCovData[item][sourceFile][funName] += int(hitTimes)
+                # print >> sys.stderr, "Error: muliple function hit record."
+                # print >> sys.stderr, "file: ", item
+                # print >> sys.stderr, "source file: ", sourceFile
+                # print >> sys.stderr, "function name: ", funName
+
+                # sys.exit(1)
             continue
 
         elif line.startswith('FNF:'):
-            funSum[item][sourceFile]['found'] = int(line[4:])
+            if 'found' not in funSum[item][sourceFile]:
+                funSum[item][sourceFile]['found'] = int(line[4:])
+            else:
+                funSum[item][sourceFile]['found'] += int(line[4:])
             continue
 
         elif line.startswith('FNH:'):
             # print int(line[4:])
-            funSum[item][sourceFile]['hit'] = int(line[4:])
+            if 'hit' not in funSum[item][sourceFile]:
+                funSum[item][sourceFile]['hit'] = int(line[4:])
+            else:
+                funSum[item][sourceFile]['hit'] += int(line[4:])
 
         elif line.startswith('BRDA:'):
             data = line[5:].split(',')
             key = (data[0], data[1], data[2])
             if data[3] == '-':
                 val = 0
+            # elif data[3] == '0':
+            #     print "WTF!"
             else:
                 val = int(data[3])
-            brCovData[item][sourceFile][key] = val
+            if key not in brCovData[item][sourceFile]:
+                brCovData[item][sourceFile][key] = val
+            else:
+                brCovData[item][sourceFile][key] += val
             continue
 
         elif line.startswith('BRF:'):
-            brSum[item][sourceFile]['found'] = int(line[4:])
+            if 'found' not in brSum[item][sourceFile]:
+                brSum[item][sourceFile]['found'] = int(line[4:])
+            else:
+                brSum[item][sourceFile]['found'] += int(line[4:])
             continue
 
         elif line.startswith('BRH:'):
-            brSum[item][sourceFile]['hit'] = int(line[4:])
+            if 'hit' not in brSum[item][sourceFile]:
+                brSum[item][sourceFile]['hit'] = int(line[4:])
+            else:
+                brSum[item][sourceFile]['hit'] += int(line[4:])
             # print int(line[4:])
             continue
             
@@ -212,24 +243,60 @@ for item in contentList:
             data = line[3:]
             line_num = data.split(',')[0]
             hit_num = int(data.split(',')[1])
-            lineCovData[item][sourceFile][line_num] = hit_num
+
+            if line_num not in lineCovData[item][sourceFile]:
+                lineCovData[item][sourceFile][line_num] = hit_num
+            else:
+                lineCovData[item][sourceFile][line_num] += hit_num
             continue
 
         elif line.startswith('LF:'):
-            lineSum[item][sourceFile]['found'] = int(line[3:])
+            if 'found' not in lineSum[item][sourceFile]:
+                lineSum[item][sourceFile]['found'] = int(line[3:])
+            else:
+                lineSum[item][sourceFile]['found'] += int(line[3:])
             continue
 
         elif line.startswith('LH:'):
-            lineSum[item][sourceFile]['hit'] = int(line[3:])
+
+            if 'hit' not in lineSum[item][sourceFile]:
+                lineSum[item][sourceFile]['hit'] = int(line[3:])
+            else:
+                lineSum[item][sourceFile]['hit'] += int(line[3:])
             # print item, sourceFile
             # print int(line[3:])
             # print lineSum[item][sourceFile]
             continue
-
-        else:
+        elif line.startswith('TN:') or \
+                 line.startswith('end_of_record'): # known else
             continue
 
+        else:
+            print >> sys.stderr, "Unknown line in the info file:"
+            print >> sys.stderr, line
+            sys.exit(1)
 
+
+# debugging purpose
+stat1 = {} # {infofile_name, #}, from lineSum
+stat2 = {} # {infofile_name, #}, from lineCovData
+for item in lineSum:
+    stat1[item] = 0
+    for sItem in lineSum[item]:
+        stat1[item] += lineSum[item][sItem]['found']
+
+print "from lineSum:"
+for item in stat1:
+    print item, ":", stat1[item]
+
+for i in lineCovData:
+    stat2[i] = 0
+    for j in lineCovData[i]:
+        stat2[i] += len(lineCovData[i][j])
+
+print "from lineCovData:"
+for item in stat2:
+    print item, ':', stat2[item]
 
 ##############################
 #
@@ -257,14 +324,24 @@ lineStat = {}
 funStat = {}
 brStat = {}
 
+print "\n>>> list of 'info' files:"
 for item in lineCovData.keys():
     print item
+print
 
 
-# example_info_file = "/home/tlong/Dropbox/func_test/openmpi_result/infofiles/freepooma.info"
-# example_info_file = fileDir + "/freepooma.info"
+# for debugging purpose only:
+infos = {}
+for i in infoList:
+    infos[i] = []
+    for j in lineCovData[i]:
+        infos[i].append(j)
+    print i
+    print len(infos[i])
+    
+
+# use the sourcefile list in example info file for calculation?
 example_info_file = infoList[0]
-
 sourceList = lineCovData[example_info_file]
 
 
@@ -273,7 +350,7 @@ sourceList = lineCovData[example_info_file]
 for item in sourceList:
     for sItem in sourceList[item]:
         key = (item, sItem)
-        # print key
+
         val = 0
         counter = 0
         for infoFile in infoList:
@@ -342,7 +419,8 @@ for item in sourceList:
         brStat_single[key] = counter
 
 
-
+# for debug purpose
+exit()
 
 
 
