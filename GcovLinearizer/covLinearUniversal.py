@@ -70,7 +70,7 @@ brSum = {}
 prefixList = ['/usr/home/tlong/apr/', '/home/tlong/new_workspace/apr/', '/home/tlong/openmpi/', '/usr/home/tlong/openmpi/', '/home/tlong/workspace/apache-httpd/','/home/tlong/workspace/openmp/']
 
 # testList, indicating the path of test sources.
-testList = ['apr-1.4.2/test/']
+testList = ['apr-1.4.2/test/', 'openmpi-1.4.3/test/']
 
 
 for item in contentList:
@@ -384,8 +384,6 @@ for i in infoList:
 
 # line coverage
 for infoFile in infoList:
-    if 'self' in infoFile:
-        continue
     sourceList = lineCovData[infoFile]
 
     for sourcefile in sourceList:
@@ -398,17 +396,20 @@ for infoFile in infoList:
             else:
                 counter = 0
 
-            if key not in lineStat:
-                lineStat[key] = val
-                lineStat_single[key] = 1
+            if 'self' in infoFile: # for unit test, just find the line, don't count
+                if key not in lineStat:
+                    lineStat[key] = 0
+                    lineStat_single[key] = 0
             else:
-                lineStat[key] += val
-                lineStat_single[key] += counter
+                if key not in lineStat:
+                    lineStat[key] = val
+                    lineStat_single[key] = 1
+                else:
+                    lineStat[key] += val
+                    lineStat_single[key] += counter
 
 # function coverage
 for infoFile in infoList:
-    if 'self' in infoFile:
-        continue
     sourceList = funCovData[infoFile]
 
     for sourcefile in sourceList:
@@ -421,17 +422,20 @@ for infoFile in infoList:
             else:
                 counter = 0
 
-            if key not in funStat:
-                funStat[key] = val
-                funStat_single[key] = 1
+            if 'self' in infoFile:
+                if key not in funStat:
+                    funStat[key] = 0
+                    funStat_single[key] = 0
             else:
-                funStat[key] += val
-                funStat_single[key] += counter
+                if key not in funStat:
+                    funStat[key] = val
+                    funStat_single[key] = 1
+                else:
+                    funStat[key] += val
+                    funStat_single[key] += counter
 
 # branch coverage
 for infoFile in infoList:
-    if 'self' in infoFile:
-        continue
     sourceList = brCovData[infoFile]
 
     for sourcefile in sourceList:
@@ -444,12 +448,17 @@ for infoFile in infoList:
             else:
                 counter = 0
 
-            if key not in brStat:
-                brStat[key] = val
-                brStat_single[key] = 1
+            if 'self' in infoFile:
+                if key not in brStat:
+                    brStat[key] = 0
+                    brStat_single[key] = 0
             else:
-                brStat[key] += val
-                brStat_single[key] += counter
+                if key not in brStat:
+                    brStat[key] = val
+                    brStat_single[key] = 1
+                else:
+                    brStat[key] += val
+                    brStat_single[key] += counter
 
 
 ########################################
@@ -487,7 +496,6 @@ print "Number of functions: ", totalFun
 print "Number of branches: ", totalBr
 
 
-
 print r'''
 ##############################
 #
@@ -497,9 +505,8 @@ print r'''
 '''
 
 
-# unitName = '/home/tlong/Dropbox/func_test/openmpi_result/infofiles/z_self.info'
-# unitName = fileDir + '/z_self.info'
 unitName = infoList[-1]
+print "unit Name:", unitName
 
 subLineCov = lineCovData[unitName]
 counter = 0
@@ -509,8 +516,8 @@ for item in subLineCov:
                subLineCov[item][sItem] != 0:
             counter += 1
 
-
 print "line_cov:", str(float(counter) / float(totalLine) * 100) + '%'
+
 
 subFunCov = funCovData[unitName]
 counter = 0
@@ -519,7 +526,8 @@ for item in subLineCov:
         if (item, sItem) in funStat and \
                subFunCov[item][sItem] != 0:
             counter += 1
-
+        # elif (item, sItem) not in funStat:
+            # print "bingo 2, error."
 
 print "fun_cov:", str(float(counter) / float(totalFun) * 100) + '%'
 
@@ -530,8 +538,11 @@ for item in subBrCov:
         if (item, sItem) in brStat and \
                subBrCov[item][sItem] != 0:
             counter += 1
+        # elif (item, sItem) not in brStat:
+            # print "bingo 3, error."
 
 print "br_cov:",  str(float(counter) / float(totalBr) * 100) + '%'
+
 
 
 print r'''
@@ -598,6 +609,8 @@ for item in infoList:
         sum += float(counter) / float(totalBr)
 print "\tSum: ", str(sum * 100) + '%'        
 
+
+
 print r'''
 ##############################
 #
@@ -622,7 +635,7 @@ for item in infoList:
         fileName = item.split('/')[-1].split('.')[0]
         print fileName, ':', str(float(counter) / float(totalLine) * 100) + '%'
         sum += float(counter) / float(totalLine)
-print "\tSum: ", str(sum * 100) + '%'        
+# print "\tSum: ", str(sum * 100) + '%'        
         
 print "\nfun_cov:"
 sum = 0.0
@@ -640,7 +653,7 @@ for item in infoList:
         fileName = item.split('/')[-1].split('.')[0]
         print fileName, ':', str(float(counter) / float(totalFun) * 100) + '%'
         sum += float(counter) / float(totalFun)
-print "\tSum: ", str(sum * 100) + '%'        
+# print "\tSum: ", str(sum * 100) + '%'        
 
 print "\nbr_cov:"
 sum = 0.0
@@ -659,7 +672,8 @@ for item in infoList:
         print fileName, ':', str(float(counter) / float(totalBr) * 100) + '%'
         sum += float(counter) / float(totalBr)
 
-print "\tSum: ", str(sum * 100) + '%'        
+# print "\tSum: ", str(sum * 100) + '%'        
+
 
 
 print r'''
@@ -723,6 +737,8 @@ for item in brStat:
             brCovData[unitName][item[0]][item[1]] == 0):
         counter += 1
 print "br_cov:", str(float(counter) / float(totalBr) * 100) + '%'
+
+
 
 
 print r'''
