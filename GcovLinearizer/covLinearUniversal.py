@@ -451,105 +451,6 @@ for infoFile in infoList:
                 brStat[key] += val
                 brStat_single[key] += counter
 
-# debugging
-c1 = 0
-c2 = 0
-c3 = 0
-c4 = 0
-for item in lineStat_single:
-    if lineStat_single[item] == 1:
-        c1 += 1
-    elif lineStat_single[item] == 2:
-        c2 += 1
-    elif lineStat_single[item] == 3:
-        c3 += 1
-    elif lineStat_single[item] == 4:
-        c4 += 1
-    else:
-        print "item:", item, "hit#:", lineStat_single[item]
-print c1, c2, c3, c4        
-
-
-# OBSOLETE
-# use the sourcefile list in example info file for calculation?
-# example_info_file = infoList[0]
-# sourceList = lineCovData[example_info_file]
-
-# for item in sourceList:
-#     for sItem in sourceList[item]:
-#         key = (item, sItem)
-
-#         val = 0
-#         counter = 0
-#         for infoFile in infoList:
-#             if 'self' not in infoFile:
-
-#                 # the file is not covered at all
-#                 if (item not in lineCovData[infoFile]) or \
-#                        sItem not in lineCovData[infoFile][item]:
-#                     continue
-#                 val += lineCovData[infoFile][item][sItem]
-#                 if lineCovData[infoFile][item][sItem] != 0:
-#                     counter += 1
-
-#         # print (key, val)
-#         lineStat[key] = val
-#         lineStat_single[key] = counter
-
-# sourceList = funCovData[example_info_file]
-
-# for item in sourceList:
-#     for sItem in sourceList[item]:
-#         key = (item, sItem)
-#         val = 0
-#         counter = 0
-
-#         for infoFile in infoList:
-#             if 'self' not in infoFile:
-#                 if item not in funCovData[infoFile] or \
-#                        sItem not in funCovData[infoFile][item]:
-#                     continue
-                
-#                 val += funCovData[infoFile][item][sItem]
-#                 if funCovData[infoFile][item][sItem] != 0:
-#                     counter += 1
-        
-#         funStat[key] = val
-#         funStat_single[key] = counter
-#         # if val == 0:
-#         #     funStat_single[key] = 0
-#         # else:
-#         #     funStat_single[key] = 1
-
-
-# sourceList = brCovData[example_info_file]
-
-# for item in sourceList:
-#     for sItem in sourceList[item]:
-#         key = (item, sItem)
-#         val = 0
-#         counter = 0
-
-#         for infoFile in infoList:
-#             if 'self' not in infoFile:
-#                 # print "infoFile", infoFile
-#                 if item not in brCovData[infoFile] or \
-#                        sItem not in brCovData[infoFile][item]:
-#                     continue
-#                 val += brCovData[infoFile][item][sItem]
-#                 if brCovData[infoFile][item][sItem] != 0:
-#                     counter += 1
-                
-#         brStat[key] = val
-#         brStat_single[key] = counter
-
-
-
-
-# for debug purpose
-exit()
-
-
 
 ########################################
 #
@@ -572,7 +473,7 @@ exit()
 print r'''
 ##############################
 #
-# 0. What is the statistics of the apr package?
+# 0. What is the statistics of the package?
 #
 ##############################
 '''
