@@ -330,7 +330,9 @@ for item in lineCovData.keys():
 print
 
 
-# for debugging purpose only:
+# for debugging purpose only: count # of source files.
+print "\n>>> number of sourcefiles:"
+print "\tfrom lineCovData:"
 infos = {}
 for i in infoList:
     infos[i] = []
@@ -338,14 +340,51 @@ for i in infoList:
         infos[i].append(j)
     print i
     print len(infos[i])
+
+print "\tfrom funCovData:"
+infos = {}
+for i in infoList:
+    infos[i] = []
+    for j in funCovData[i]:
+        infos[i].append(j)
+    print i
+    print len(infos[i])
     
+# for debugging purpose only: count # of lines or branches
+print "\n>>> number of lines:"
+for i in infoList:
+    lineNum = 0
+    for j in lineCovData[i]:
+        lineNum += len(lineCovData[i][j])
+    print i
+    print "line#:", lineNum
+
+print "\n>>> number of functions:"
+for i in infoList:
+    funNum = 0
+    for j in funCovData[i]:
+        funNum += len(funCovData[i][j])
+    print i
+    print "fun#:", funNum
+
+
+print "\n>>> number of branches:"
+for i in infoList:
+    brNum = 0
+    for j in brCovData[i]:
+        brNum += len(brCovData[i][j])
+    print i
+    print "br#:", brNum
+    
+
+
 
 # use the sourcefile list in example info file for calculation?
 example_info_file = infoList[0]
 sourceList = lineCovData[example_info_file]
 
 
-# print infoList
+
 
 for item in sourceList:
     for sItem in sourceList[item]:
