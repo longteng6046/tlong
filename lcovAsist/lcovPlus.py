@@ -10,7 +10,7 @@
 # Created: Jul. 25th, 2011
 # Updated:
 #   Jul 26, 2011: Changed the option processing with "getopt" module of python
-# Bus:
+# Bugs:
 #   1. if use with '| less' in Unix/Linux, a "Broken pipe" excpetion
 #      will be raised.
 #   2. when (-r rl r2), r1 and r2 should be anble to be quoted by ""
