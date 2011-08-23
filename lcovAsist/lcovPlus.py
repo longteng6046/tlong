@@ -201,19 +201,29 @@ if sFlag == True:
                 item = item.strip()
                 functionName = item[5:].split(',')[1]
                 hitNum = int(item[5:].split(',')[0])
-                # print "functionName:", functionName
-                # print "hitNum:", hitNum
+
+                # if hitNum != 0:
+                    # print "functionName:", functionName
+                    # print "hitNum:", hitNum
+
                 if functionName not in freqDict[currentfileName]:
-                    freqDict[currentfileName][functionName] = 0
+                    freqDict[currentfileName][functionName] = hitNum
                 else:
                     freqDict[currentfileName][functionName] += hitNum
+                    # print freqDict[currentfileName][functionName]
 
 
     None
 
+    # for item in freqDict:
+        # for sItem in freqDict[item]:
+            # print freqDict[item][sItem]
+    # exit()
+
     # Output format processing
     if ('-f', 'file') in optlist or '-f' not in opts:
         outlist = []
+
         for item in freqDict:
             freq = 0
             for sItem in freqDict[item]:
