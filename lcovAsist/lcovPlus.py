@@ -57,7 +57,9 @@ Options:
   -f file|function              Specify the output format of frequency
                                 statistics. The default output is the frequency of
                                 files hitted. This option will be skipped if not in
-                                '-s' mode
+                                '-s' mode.
+     --aggregate                If the output format is 'file', this option aggregates
+                                files into directories.
   -o, --output-file FILENAME    Write data to FILENAME instead of stdout
   
   -d, --debug-mode              Output debug information for lcovPlus
@@ -68,7 +70,7 @@ To report a bug, please contact tlong@cs.umd.edu
 
 ## Get arguments
 args = sys.argv[1:]
-optlist, args = getopt.gnu_getopt(args, "hvrsf:da:o:", ['help', 'version', 'replace', 'add-tracefile', 'freq-stat', 'output-file', 'debug-mode', 'cov-dist']) # option list
+optlist, args = getopt.gnu_getopt(args, "hvrsf:da:o:", ['help', 'version', 'replace', 'add-tracefile', 'freq-stat', 'output-file', 'debug-mode', 'cov-dist', 'aggregate']) # option list
 
 
 ##############################
@@ -79,7 +81,8 @@ aFlag = False
 rFlag = False
 oFlag = False
 sFlag = False
-dFlag = False 
+dFlag = False
+aggFlag = False
 
 ## singple options/operations
 
@@ -93,13 +96,15 @@ elif '--version' in opts or '-v' in opts:
     print version
     sys.exit(0)
 
-elif '-d' in opts or '--debug-mode' in opts:
+if '-d' in opts or '--debug-mode' in opts:
     debugFlag = True
 
-elif '-s' in opts or '--stat-freq' in opts:
+if '-s' in opts or '--stat-freq' in opts:
     sFlag = True
-elif '--cov-dist' in opts:
+if '--cov-dist' in opts:
     dFlag = True
+if '--aggregate' in opts:
+    aggFlag = True
 
 infileList = [] # the list of added inputed files.
 replacePair = None # the list of prefix replacement pairs
@@ -217,7 +222,7 @@ if sFlag == True:
                 # print "functionName:", functionName
                 # print "hitNum:", hitNum
                 if functionName not in freqDict[currentfileName]:
-                    freqDict[currentfileName][functionName] = 0
+                    freqDict[currentfileName][functionName] = hitNum
                 else:
                     freqDict[currentfileName][functionName] += hitNum
 
@@ -234,8 +239,51 @@ if sFlag == True:
             tmpString = item + ": " + str(freq)
             outlist.append(tmpString)
         outlist.sort()
-        for item in outlist:
-            print >> outstream, item
+
+        if aggFlag == True:
+            # do aggregation, then output
+            paths = []
+            for item in outlist:
+                paths.append(item.split(':')[0])
+            commPath = os.path.commonprefix(paths)
+
+
+            if len(commPath) == 0:
+                print >> sys.stderr, "No common path for all the source files, cannot aggregate."
+                sys.exit(1)                
+
+            # if not commPath.endswith('/'):
+            #     commPath = '/'.join(commPath.split('/')[:-1]) + '/'
+
+            # print "comm path:", commPath
+            # sys.exit(1)
+            
+            print "commPath:", commPath
+            
+            aggDict = {}
+            for item in outlist:
+                path = item.split(':')[0]
+                count = int(item.split(':')[1])
+                path = path.replace(commPath, '', 1)
+                path = path.split('/')[0]
+                # print path
+                if path not in aggDict:
+                    aggDict[path] = count
+                else:
+                    aggDict[path] += count
+
+            # for item in aggDict:
+                # print >> outstream, item, aggDict[item]
+            for item in aggDict:
+                outstream.write(item + ' & ')
+            outstream.write('\n')
+            for item in aggDict:
+                outstream.write(str(aggDict[item]) + ' & ')
+
+        else:
+            for item in outlist:
+                print >> outstream, item
+
 
     elif ('-f', 'function') in optlist:
         outlist = [item for item in freqDict]
@@ -247,6 +295,7 @@ if sFlag == True:
             for sItem in sOutlist:
                 tmpString = '\t' + sItem + ': ' + str(freqDict[item][sItem])
                 print >> outstream, tmpString
+                
     else:
         print >> sys.stderr, "Wrong argument given to '-f' option."
         errorInfo()
@@ -309,8 +358,8 @@ if dFlag == True:
                     lFreqDict[currentfileName][lineNum] = 0
                 if hitNum != 0:
                     lFreqDict[currentfileName][lineNum] += 1
-                    # print "bingo 3"                    
-    print "gets so far."
+                
+
 
     totalLine = 0
     totalBr = 0
