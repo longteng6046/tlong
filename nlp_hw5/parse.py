@@ -24,6 +24,7 @@ def backtrace_rec(start, end, tag, zeta, terminals): # trace (0, 4, NP), as e.g.
     if (start, end, tag) not in zeta:
         return "Error in backtracing!"
     
+    
     track = zeta[(start, end, tag)]
     tagString = idSymDict[tag]
     if '~' not in tagString:
@@ -34,6 +35,7 @@ def backtrace_rec(start, end, tag, zeta, terminals): # trace (0, 4, NP), as e.g.
 
     # left child
     if track[1] in terminals:
+    # if '~' not in idSymDict[track[1]]:
         result += '( '
         result += idSymDict[track[1]]
         result += ' '
@@ -44,6 +46,7 @@ def backtrace_rec(start, end, tag, zeta, terminals): # trace (0, 4, NP), as e.g.
 
     # right child
     if track[2] in terminals:
+    # if '~' not in idSymDict[track[2]]:
         result += '( '
         result += idSymDict[track[2]]
         result += ' '
@@ -76,7 +79,10 @@ def backtrace(S, zeta, n, terminals):
 
 
 # CYK parsing
-def cyk(in_string, model, S, symIdDict, idSymDict):
+def cyk(in_string, newRules, model, S, symIdDict, idSymDict):
+    treeRules = model[0]
+    topRules = model[1]
+
     # print "parsing", in_string.strip()
     tags = in_string.split()
 
@@ -96,25 +102,11 @@ def cyk(in_string, model, S, symIdDict, idSymDict):
     
 
 
-    # filter out irrelavent rules
-    begin = timeit.default_timer()
-
-    model_se = {}
-    for item in model:
-        if len(item) == 2:
-            continue
-        else:
-            model_se[item] = model[item]
-
-
-    # print "filter:", (timeit.default_timer() - begin)
-
-
-    for i in range(1, n+1):             # for i=1 to n, pi[i-1, i, tao(i)] <- 1
+    for i in range(1, n+1):             
         key = (i-1, i, tags[i-1])
         pi[key] = 1.0
         pi2[i-1][i][symIdDict[tags[i-1]]] = 1.0
-        # print "pi[", key, ']:', pi[key]
+
 
 
 
@@ -122,52 +114,106 @@ def cyk(in_string, model, S, symIdDict, idSymDict):
     for s in range(2, n+1):             # for s = 2 to n
         for b in range(0, n-s+1):       # for b = 0 to n-s
             for m in range(b+1, b+s):   # for m = b+1 to b+s-1
-                for rule in model_se:      # for all A,B,C that A -> B C
-                    A, B, C = rule
+
+                # for rule in newRules:
+                #     if len(rule) == 2:
+                #         continue
+                #     A, B, C = rule
+
+                #     if B not in pi2[b][m]:
+                #         continue
+                    
+
+                #     if C not in pi2[m][b+s]:
+                #         continue
+                    
+                #     probability = pi2[b][m][B] * pi2[m][b+s][C] * newRules[rule]
+                    
+                #     if A not in pi2[b][b+s] or \
+                #        pi2[b][b+s][A] < probability:
+                #         pi2[b][b+s][A] = probability
+                #         zeta[(b, b+s, A)] = (m, B, C)
 
 
-                    # if (b, m, B) not in pi:
-                    #     continue
-
+                for B in treeRules:
                     if B not in pi2[b][m]:
                         continue
+
+                    for C in treeRules[B]:
+                        if C not in pi2[m][b+s]:
+                            continue
+
+                        for A in treeRules[B][C]:
                     
-                    # if (m, b+s, C) not in pi:
-                    #     continue
+                            # probability = pi2[b][m][B] * pi2[m][b+s][C] * newRules[(A, B, C)]
+                            probability = pi2[b][m][B] * pi2[m][b+s][C] * treeRules[B][C][A]
+                            if A not in pi2[b][b+s] or \
+                                   pi2[b][b+s][A] < probability:
+                                pi2[b][b+s][A] = probability
+                                zeta[(b, b+s, A)] = (m, B, C)
+                            
 
-                    if C not in pi2[m][b+s]:
-                        continue
 
-                    # probability = pi[(b, m, B)] * pi[(m, b+s, C)] * model_se[rule]
-                    probability = pi2[b][m][B] * pi2[m][b+s][C] * model_se[rule]
+                # for B in treeRules:
+                #     if B not in pi2[b][m]:
+                #         continue
+                #     for C in treeRules[B]:
+                #         if C not in pi2[m][b+s]:
+                #             continue
+                #         for A in treeRules[B][C]:
+                #             # probability = treeRules[B][C][A] * pi2[b][m][B] * pi2[m][b+s][C]
+                #             # probability = pi2[b][m][B] * pi2[m][b+s][C] * treeRules[B][C][A]
+                #             probability = treeRules[B][C][A] * pi2[b][m][B] * pi2[m][b+s][C]
+                #             # print "probability:", probability
+                #             if A not in pi2[b][b+s] or \
+                #                pi2[b][b+s][A] < probability:
+                #                 pi2[b][b+s][A] = probability
+                #                 zeta[(b, b+s, A)] = (m, B, C)
+
+                # for rule in model_se:      # for all A,B,C that A -> B C
+                #     A, B, C = rule
+
+
+                #     # if (b, m, B) not in pi:
+                #     #     continue
+
+                #     if B not in pi2[b][m]:
+                #         continue
                     
-                    # update pi
+                #     # if (m, b+s, C) not in pi:
+                #     #     continue
 
-                    # if ((b, b+s, A) not in pi) or \
-                    #        (probability > pi[(b, b+s, A)]):
-                    #     pi[(b, b+s, A)] = probability
-                    #     zeta[(b, b+s, A)] = (m, B, C) # backtracks
+                #     if C not in pi2[m][b+s]:
+                #         continue
 
-                    if A not in pi2[b][b+s] or \
-                       pi2[b][b+s][A] < probability:
-                        pi2[b][b+s][A] = probability
-                        zeta[(b, b+s, A)] = (m, B, C)
+                #     # probability = pi[(b, m, B)] * pi[(m, b+s, C)] * model_se[rule]
+                #     probability = pi2[b][m][B] * pi2[m][b+s][C] * model_se[rule]
+                    
+                #     # update pi
+
+                #     # if ((b, b+s, A) not in pi) or \
+                #     #        (probability > pi[(b, b+s, A)]):
+                #     #     pi[(b, b+s, A)] = probability
+                #     #     zeta[(b, b+s, A)] = (m, B, C) # backtracks
+
+                #     if A not in pi2[b][b+s] or \
+                #        pi2[b][b+s][A] < probability:
+                #         pi2[b][b+s][A] = probability
+                #         zeta[(b, b+s, A)] = (m, B, C)
 
                     
     print "loops:", (timeit.default_timer() - begin)                    
     # for ii in pi2:
     #     for jj in pi2[ii]:
     #         for kk in pi2[ii][jj]:
-    #             print (ii, jj, kk), '=', pi2[ii][jj][kk]
+    #             print (ii, jj, idSymDict[kk]), '=', pi2[ii][jj][kk]
     
     begin = timeit.default_timer()
     # find initial rule
     S = None
     max_prob = 0
-    for rule in model:
-        if idSymDict[rule[0]] != "TOP":
-            continue
-
+    for rule in topRules:
+        # print idSymDict[rule[0]], '->', idSymDict[rule[1]]
         A = rule[1]
 
         # if (0, n, A) not in pi:
@@ -177,13 +223,19 @@ def cyk(in_string, model, S, symIdDict, idSymDict):
         if A not in pi2[0][n]:
             continue
 
-        prob = pi2[0][n][A] * model[rule]
+
+        # print "here here tada...."
+        prob = pi2[0][n][A] * topRules[rule]
         
 
         if prob > max_prob:
             S = A
             max_prob = prob
 
+    if S == None:
+        print "wired, S not found."
+        exit()
+    
     terminals2 = set()
     for item in terminals:
         terminals2.add(symIdDict[item])
@@ -198,10 +250,10 @@ def cyk(in_string, model, S, symIdDict, idSymDict):
 
 
 class Cyk_thread(threading.Thread):
-    def __init__(self, sentences, rules, symSet, symIdDict, idSymDict, resultSet):
+    def __init__(self, sentences, newRules, rulePack, symSet, symIdDict, idSymDict, resultSet):
         threading.Thread.__init__(self)
         self.sentences = sentences
-        self.rules = rules
+        self.rules = rulePack
         self.resultSet = resultSet
         self.symSet = symSet
 
@@ -210,7 +262,7 @@ class Cyk_thread(threading.Thread):
             line = item[1]
             start = timeit.default_timer()
             print "\nprocessing sentence", item[0]
-            result = cyk(line, self.rules, self.symSet, symIdDict, idSymDict)
+            result = cyk(line, newRules, self.rules, self.symSet, symIdDict, idSymDict)
             duration = timeit.default_timer() - start
             
             self.resultSet.append((item[0], result, duration))
@@ -287,6 +339,41 @@ if __name__ == "__main__":
             B = terms[2]
             newRules[(symIdDict[A], symIdDict[B])] = rules[rule]   
 
+    # classify rules by A->B and A->B C, and re-organize A->B C rules
+    treeRules = {}
+    topRules = {}
+
+
+    # print "newRule:"
+    # for rule in newRules:
+    #     if len(rule) == 2:
+    #         print idSymDict[rule[0]], '->', idSymDict[rule[1]], '=', newRules[rule]
+    #     else:
+    #         print idSymDict[rule[0]], '->', idSymDict[rule[1]], idSymDict[rule[2]], '=', newRules[rule]
+
+    for rule in newRules:
+        if len(rule) == 2:
+            topRules[rule] = newRules[rule]
+            continue
+
+        # A -> B C
+        A, B, C = rule
+        if B not in treeRules:
+            treeRules[B] = {}
+        if C not in treeRules[B]:
+            treeRules[B][C] = {}
+        treeRules[B][C][A] = newRules[rule]
+
+    # print "rules:"
+    # for item in treeRules:
+    #     for sItem in treeRules[item]:
+    #         for ssItem in treeRules[item][sItem]:
+    #             print idSymDict[ssItem], '->', idSymDict[item], idSymDict[sItem], '=', treeRules[item][sItem][ssItem]
+
+
+
+    rulePack = [treeRules, topRules]
+
     # print "\nSymbol table:"
     # for item in S:
     #     print item, ':', symIdDict[item]
@@ -317,8 +404,6 @@ if __name__ == "__main__":
         
     for i in range(0, num_threads):
         tmpResult = []
-
-        
         begin = i * avg
         end = (i + 1) * avg - 1
 
@@ -330,7 +415,7 @@ if __name__ == "__main__":
             sentences.append((j, lines[j]))
             total += 1
             
-        threads.append(Cyk_thread(sentences, newRules, S, symIdDict, idSymDict, tmpResult))
+        threads.append(Cyk_thread(sentences, newRules, rulePack, S, symIdDict, idSymDict, tmpResult))
         
         resultSet.append(tmpResult)
 
