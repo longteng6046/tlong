@@ -25,8 +25,9 @@ def backtrace_rec(start, end, tag, zeta, terminals): # trace (0, 4, NP), as e.g.
         return "Error in backtracing!"
     
     track = zeta[(start, end, tag)]
-    if '~' not in tag:
-        result = '( ' + tag + ' '
+    tagString = idSymDict[tag]
+    if '~' not in tagString:
+        result = '( ' + tagString + ' '
     else:
         # result = '( ' + tag + ' '
         result = ''
@@ -34,9 +35,9 @@ def backtrace_rec(start, end, tag, zeta, terminals): # trace (0, 4, NP), as e.g.
     # left child
     if track[1] in terminals:
         result += '( '
-        result += track[1]
+        result += idSymDict[track[1]]
         result += ' '
-        result += 'W' + track[1].lower() + ' ) '
+        result += 'W' + idSymDict[track[1]].lower() + ' ) '
     else:
         result += backtrace_rec(start, track[0], track[1], zeta, terminals)
         result += ' '
@@ -44,14 +45,14 @@ def backtrace_rec(start, end, tag, zeta, terminals): # trace (0, 4, NP), as e.g.
     # right child
     if track[2] in terminals:
         result += '( '
-        result += track[2]
+        result += idSymDict[track[2]]
         result += ' '
-        result += 'W' + track[2].lower() + ' ) '
+        result += 'W' + idSymDict[track[2]].lower() + ' ) '
     else:
         result += backtrace_rec(track[0], end, track[2], zeta, terminals)
         result += ' '
 
-    if '~' not in tag:
+    if '~' not in tagString:
         result += ')'
     # else:
         # result += ')'
@@ -73,76 +74,9 @@ def backtrace(S, zeta, n, terminals):
         else:
             return "Error, Cannot parse this sentence."
 
-# with full initialization of pi
-def cyk2(in_string, model):
-    tags = in_string.split()
-    n = len(tags)
-    V = set()
-    for rule in model:
-        left = rule.split('->')[0].strip()
-        V.add(left)
-
-    pi = {}
-    zeta = {}
-
-    for i in range(0, n+1):
-        for j in range(0, n+1):
-            for item in V:
-                pi[(i, j, item)] = 0.0
-
-
-    for i in range(1, n+1):
-        pi[(i-1, i, tags[i-1])] = 1.0
-
-    for s in range(2, n+1):
-        for b in range(0, n-s+1):
-            for m in range(b+1, b+s):
-                for rule in model:
-                    left, right = rule.split('->')
-                    A = left.strip()
-                    rights = right.split()
-                    if len(rights) == 1:
-                        continue
-                    B = rights[0]
-                    C = rights[1]
-
-                    if (b, m, B) not in pi:
-                        continue
-                    if (m, b+s, C) not in pi:
-                        continue
-
-                    probability = pi[(b, m, B)] * pi[(m, b+s, C)] * model[rule]
-
-                    if ((b, b+s, A) not in pi) or probability > pi[(b, b+s, A)]:
-                        pi[(b, b+s, A)] = probability
-                        zeta[(b, b+s, A)] = (m, B, C)
-                    
-
-
-    # find max S
-    A = None
-    max_prob = 0.0
-    for rule in model:
-        left = rule.split('->')[0].strip()
-        if left != "TOP":
-            continue
-        right = rule.split('->')[1].strip()
-
-        if (0, n, right) not in pi:
-            continue
-        prob = pi[(0, n, right)] * model[rule]
-        if prob > max_prob:
-
-            A = right
-            max_prob = prob
-
-
-    result = backtrace(A, zeta, n, tags)
-    return result;
-
 
 # CYK parsing
-def cyk(in_string, model):
+def cyk(in_string, model, S, symIdDict, idSymDict):
     # print "parsing", in_string.strip()
     tags = in_string.split()
 
@@ -167,23 +101,19 @@ def cyk(in_string, model):
 
     model_se = {}
     for item in model:
-        left, rights = item.split('->')
-        left = left.strip()
-
-        rights = rights.split()
-        if len(rights) == 1:
+        if len(item) == 2:
             continue
         else:
-            model_se[(left, rights[0], rights[1])] = model[item]
+            model_se[item] = model[item]
 
 
-    print "filter:", (timeit.default_timer() - begin)
+    # print "filter:", (timeit.default_timer() - begin)
 
 
     for i in range(1, n+1):             # for i=1 to n, pi[i-1, i, tao(i)] <- 1
         key = (i-1, i, tags[i-1])
         pi[key] = 1.0
-        pi2[i-1][i][tags[i-1]] = 1.0
+        pi2[i-1][i][symIdDict[tags[i-1]]] = 1.0
         # print "pi[", key, ']:', pi[key]
 
 
@@ -194,6 +124,7 @@ def cyk(in_string, model):
             for m in range(b+1, b+s):   # for m = b+1 to b+s-1
                 for rule in model_se:      # for all A,B,C that A -> B C
                     A, B, C = rule
+
 
                     # if (b, m, B) not in pi:
                     #     continue
@@ -206,7 +137,7 @@ def cyk(in_string, model):
 
                     if C not in pi2[m][b+s]:
                         continue
-                    
+
                     # probability = pi[(b, m, B)] * pi[(m, b+s, C)] * model_se[rule]
                     probability = pi2[b][m][B] * pi2[m][b+s][C] * model_se[rule]
                     
@@ -224,15 +155,20 @@ def cyk(in_string, model):
 
                     
     print "loops:", (timeit.default_timer() - begin)                    
+    # for ii in pi2:
+    #     for jj in pi2[ii]:
+    #         for kk in pi2[ii][jj]:
+    #             print (ii, jj, kk), '=', pi2[ii][jj][kk]
     
     begin = timeit.default_timer()
     # find initial rule
     S = None
     max_prob = 0
     for rule in model:
-        if not rule.startswith('TOP'):
+        if idSymDict[rule[0]] != "TOP":
             continue
-        A = rule.split('->')[1].strip()
+
+        A = rule[1]
 
         # if (0, n, A) not in pi:
         #     continue
@@ -240,6 +176,7 @@ def cyk(in_string, model):
 
         if A not in pi2[0][n]:
             continue
+
         prob = pi2[0][n][A] * model[rule]
         
 
@@ -247,39 +184,33 @@ def cyk(in_string, model):
             S = A
             max_prob = prob
 
+    terminals2 = set()
+    for item in terminals:
+        terminals2.add(symIdDict[item])
+    
+    result = backtrace(S, zeta, n, terminals2)
 
-    result = backtrace(S, zeta, n, terminals)
-    # print "time for backtracing:", (timeit.default_timer() - time2)
-    print "back tracing:", (timeit.default_timer() - begin)                        
+    # print "back tracing:", (timeit.default_timer() - begin)                        
 
     return result
 
 
 
 
-    # print 'S:', Sp
-    
-    # for item in pi:
-    #     print 'pi[', item, ']:', pi[item]
-
-    # print ''
-    # for item in zeta:
-    #     print 'zeta[', item, ']:', zeta[item]
-
-
 class Cyk_thread(threading.Thread):
-    def __init__(self, sentences, rules, resultSet):
+    def __init__(self, sentences, rules, symSet, symIdDict, idSymDict, resultSet):
         threading.Thread.__init__(self)
         self.sentences = sentences
         self.rules = rules
         self.resultSet = resultSet
+        self.symSet = symSet
 
     def run(self):
         for item in self.sentences:
             line = item[1]
             start = timeit.default_timer()
             print "\nprocessing sentence", item[0]
-            result = cyk(line, self.rules)
+            result = cyk(line, self.rules, self.symSet, symIdDict, idSymDict)
             duration = timeit.default_timer() - start
             
             self.resultSet.append((item[0], result, duration))
@@ -305,6 +236,61 @@ if __name__ == "__main__":
             continue
         rule, probability = line.split('=')
         rules[rule.strip()] = float(probability.strip())
+
+
+    # symbol sets, and use int for symbols in rules
+    S = set()                           # all symbols
+    V = set()                           # non-terminals
+    T = set()                           # terminals
+
+    for rule in rules:
+        terms = rule.split()
+        if len(terms) == 4:
+            A = terms[0]
+            B = terms[2]
+            C = terms[3]
+            S.add(A)
+            S.add(B)
+            S.add(C)
+            V.add(A)
+        else:
+            A = terms[0]
+            B = terms[2]
+            S.add(A)
+            S.add(B)
+            V.add(A)
+    for item in S:
+        if item not in V:
+            T.add(item)
+
+
+
+    symIdDict = {}                      # symbol to ID
+    idSymDict = {}                      # ID to symbol
+    symCnt = 0
+
+    for item in S:
+        symIdDict[item] = symCnt
+        idSymDict[symCnt] = item
+        symCnt += 1
+
+    newRules = {}                        # (A B C p) or (A B p)    
+    for rule in rules:
+        terms = rule.split()
+        if len(terms) ==4:
+            A = terms[0]
+            B = terms[2]
+            C = terms[3]
+            newRules[(symIdDict[A], symIdDict[B], symIdDict[C])] = rules[rule]
+        else:
+            A = terms[0]
+            B = terms[2]
+            newRules[(symIdDict[A], symIdDict[B])] = rules[rule]   
+
+    # print "\nSymbol table:"
+    # for item in S:
+    #     print item, ':', symIdDict[item]
+
 
     # read input strings
     lineCnt = 1
@@ -344,7 +330,7 @@ if __name__ == "__main__":
             sentences.append((j, lines[j]))
             total += 1
             
-        threads.append(Cyk_thread(sentences, rules, tmpResult))
+        threads.append(Cyk_thread(sentences, newRules, S, symIdDict, idSymDict, tmpResult))
         
         resultSet.append(tmpResult)
 

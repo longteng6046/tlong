@@ -15,8 +15,8 @@ def backtrace(l,h,A):
     else:
         rule = "(" + A + " W" + A.lower() + ")"
     return rule
-rule = 'rulesLF.txt'
-n1 = 'f2-21.test.parse-POSonly'
+rule = 'model.txt'
+n1 = 'corpus/f2-21.test.parse-POSonly'
 output = 'output.txt'
 test = open(n1, 'r')
 r = open(rule, 'r')
