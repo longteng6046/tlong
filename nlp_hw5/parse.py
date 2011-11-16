@@ -21,6 +21,9 @@ class Node:
     right = ''
 
 def backtrace_rec(start, end, tag, zeta, terminals): # trace (0, 4, NP), as e.g.
+    if (start, end, tag) not in zeta:
+        return "Error in backtracing!"
+    
     track = zeta[(start, end, tag)]
     if '~' not in tag:
         result = '( ' + tag + ' '
@@ -61,12 +64,16 @@ def backtrace(S, zeta, n, terminals):
 
     if S in terminals:
         result = '( TOP (' + S + ' ' + 'W' + S.lower() + ' ) )'
+        return result
     else:
         result = backtrace_rec(0, n, S, zeta, terminals)
         result = '( TOP ' + result + ' )'
-    return result
+        if "Error in backtracing!" not in result:
+            return result
+        else:
+            return "Error, Cannot parse this sentence."
 
-
+# with full initialization of pi
 def cyk2(in_string, model):
     tags = in_string.split()
     n = len(tags)
@@ -171,6 +178,8 @@ def cyk(in_string, model):
         # print "pi[", key, ']:', pi[key]
 
 
+
+    begin = timeit.default_timer()
     for s in range(2, n+1):             # for s = 2 to n
         for b in range(0, n-s+1):       # for b = 0 to n-s
             for m in range(b+1, b+s):   # for m = b+1 to b+s-1
@@ -182,10 +191,6 @@ def cyk(in_string, model):
                     if (m, b+s, C) not in pi:
                         continue
                     probability = pi[(b, m, B)] * pi[(m, b+s, C)] * model_se[rule]
-                    # print rule
-                    # print "b:", b, "m:", m, "b+s:", (b+s)
-                    # print "prob1:", pi[(b, m, B)], "prob2:", pi[(m, b+s, C)], "r.prob:", model_se[rule]
-                    # print "probability:", probability
                     
                     # update pi
                     if ((b, b+s, A) not in pi) or \
@@ -194,24 +199,9 @@ def cyk(in_string, model):
                         zeta[(b, b+s, A)] = (m, B, C) # backtracks
 
                     
-                    
-                # print "number of items in pi:", len(pi)
-                # print "number of items in zeta:", len(zeta)
-                # return
-
-
-    # for item in pi:
-    #     print 'pi[', item, ']:', pi[item]
-
-    # print ''
-    # for item in zeta:
-    #     print 'zeta[', item, ']:', zeta[item]
-
-
-    print "pi size:", len(pi)
-    print "zeta size:", len(zeta)
+    print "loops:", (timeit.default_timer() - begin)                    
     
-
+    begin = timeit.default_timer()
     # find initial rule
     S = None
     max_prob = 0
@@ -227,20 +217,10 @@ def cyk(in_string, model):
             max_prob = prob
 
 
-    # print "max prob:", max_prob
-
-    # backtrace
-    # print ((0, 10, 'S') in pi)
-    # print pi[(0, 10, 'S')]
-    # print ((0, 10, 'FRAG') in pi)
-    # print pi[(0, 10, 'FRAG')]
-    
-    # print 'S:', S
-
-    time2 = timeit.default_timer()
     result = backtrace(S, zeta, n, terminals)
     # print "time for backtracing:", (timeit.default_timer() - time2)
-    
+    print "back tracing:", (timeit.default_timer() - begin)                        
+
     return result
 
 
@@ -267,10 +247,10 @@ class Cyk_thread(threading.Thread):
         for item in self.sentences:
             line = item[1]
             start = timeit.default_timer()
-            print "processing sentence", item[0]
+            print "\nprocessing sentence", item[0]
             result = cyk(line, self.rules)
             duration = timeit.default_timer() - start
-
+            
             self.resultSet.append((item[0], result, duration))
     
 if __name__ == "__main__":
@@ -304,6 +284,7 @@ if __name__ == "__main__":
     print "total lines to process:", num_to_process
     print "number of threads:", num_threads
     
+
     if num_to_process > len(lines):
         num_to_process = len(lines)
 
