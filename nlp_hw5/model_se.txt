@@ -1,0 +1,6 @@
+# the example model in slides
+TOP -> NP = 1.0
+NP -> NN NN = 0.5
+NP -> NP NN = 0.3
+NP -> NN NP = 0.1
+NP -> NP NP = 0.1
