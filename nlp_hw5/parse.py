@@ -152,6 +152,14 @@ def cyk(in_string, model):
     zeta = {}                           # backtrack
     n = len(tags)                       # number of tags
 
+    # optimized pi
+    pi2 = {}
+    for i in range(0, n+1):
+        pi2[i] = {}
+        for j in range(i+1, n+1):
+            pi2[i][j] = {}
+    
+    
 
 
     # filter out irrelavent rules
@@ -174,7 +182,8 @@ def cyk(in_string, model):
 
     for i in range(1, n+1):             # for i=1 to n, pi[i-1, i, tao(i)] <- 1
         key = (i-1, i, tags[i-1])
-        pi[key] = 1
+        pi[key] = 1.0
+        pi2[i-1][i][tags[i-1]] = 1.0
         # print "pi[", key, ']:', pi[key]
 
 
@@ -186,17 +195,32 @@ def cyk(in_string, model):
                 for rule in model_se:      # for all A,B,C that A -> B C
                     A, B, C = rule
 
-                    if (b, m, B) not in pi:
+                    # if (b, m, B) not in pi:
+                    #     continue
+
+                    if B not in pi2[b][m]:
                         continue
-                    if (m, b+s, C) not in pi:
+                    
+                    # if (m, b+s, C) not in pi:
+                    #     continue
+
+                    if C not in pi2[m][b+s]:
                         continue
-                    probability = pi[(b, m, B)] * pi[(m, b+s, C)] * model_se[rule]
+                    
+                    # probability = pi[(b, m, B)] * pi[(m, b+s, C)] * model_se[rule]
+                    probability = pi2[b][m][B] * pi2[m][b+s][C] * model_se[rule]
                     
                     # update pi
-                    if ((b, b+s, A) not in pi) or \
-                           (probability > pi[(b, b+s, A)]):
-                        pi[(b, b+s, A)] = probability
-                        zeta[(b, b+s, A)] = (m, B, C) # backtracks
+
+                    # if ((b, b+s, A) not in pi) or \
+                    #        (probability > pi[(b, b+s, A)]):
+                    #     pi[(b, b+s, A)] = probability
+                    #     zeta[(b, b+s, A)] = (m, B, C) # backtracks
+
+                    if A not in pi2[b][b+s] or \
+                       pi2[b][b+s][A] < probability:
+                        pi2[b][b+s][A] = probability
+                        zeta[(b, b+s, A)] = (m, B, C)
 
                     
     print "loops:", (timeit.default_timer() - begin)                    
@@ -209,9 +233,16 @@ def cyk(in_string, model):
         if not rule.startswith('TOP'):
             continue
         A = rule.split('->')[1].strip()
-        if (0, n, A) not in pi:
+
+        # if (0, n, A) not in pi:
+        #     continue
+        # prob = pi[(0, n, A)] * model[rule]
+
+        if A not in pi2[0][n]:
             continue
-        prob = pi[(0, n, A)] * model[rule]
+        prob = pi2[0][n][A] * model[rule]
+        
+
         if prob > max_prob:
             S = A
             max_prob = prob
