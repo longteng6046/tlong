@@ -79,7 +79,7 @@ def backtrace(S, zeta, n, terminals):
 
 
 # CYK parsing
-def cyk(in_string, newRules, model, S, symIdDict, idSymDict):
+def cyk(in_string, model, S, symIdDict, idSymDict):
     treeRules = model[0]
     topRules = model[1]
 
@@ -115,25 +115,6 @@ def cyk(in_string, newRules, model, S, symIdDict, idSymDict):
         for b in range(0, n-s+1):       # for b = 0 to n-s
             for m in range(b+1, b+s):   # for m = b+1 to b+s-1
 
-                # for rule in newRules:
-                #     if len(rule) == 2:
-                #         continue
-                #     A, B, C = rule
-
-                #     if B not in pi2[b][m]:
-                #         continue
-                    
-
-                #     if C not in pi2[m][b+s]:
-                #         continue
-                    
-                #     probability = pi2[b][m][B] * pi2[m][b+s][C] * newRules[rule]
-                    
-                #     if A not in pi2[b][b+s] or \
-                #        pi2[b][b+s][A] < probability:
-                #         pi2[b][b+s][A] = probability
-                #         zeta[(b, b+s, A)] = (m, B, C)
-
 
                 for B in treeRules:
                     if B not in pi2[b][m]:
@@ -145,7 +126,6 @@ def cyk(in_string, newRules, model, S, symIdDict, idSymDict):
 
                         for A in treeRules[B][C]:
                     
-                            # probability = pi2[b][m][B] * pi2[m][b+s][C] * newRules[(A, B, C)]
                             probability = pi2[b][m][B] * pi2[m][b+s][C] * treeRules[B][C][A]
                             if A not in pi2[b][b+s] or \
                                    pi2[b][b+s][A] < probability:
@@ -153,60 +133,8 @@ def cyk(in_string, newRules, model, S, symIdDict, idSymDict):
                                 zeta[(b, b+s, A)] = (m, B, C)
                             
 
-
-                # for B in treeRules:
-                #     if B not in pi2[b][m]:
-                #         continue
-                #     for C in treeRules[B]:
-                #         if C not in pi2[m][b+s]:
-                #             continue
-                #         for A in treeRules[B][C]:
-                #             # probability = treeRules[B][C][A] * pi2[b][m][B] * pi2[m][b+s][C]
-                #             # probability = pi2[b][m][B] * pi2[m][b+s][C] * treeRules[B][C][A]
-                #             probability = treeRules[B][C][A] * pi2[b][m][B] * pi2[m][b+s][C]
-                #             # print "probability:", probability
-                #             if A not in pi2[b][b+s] or \
-                #                pi2[b][b+s][A] < probability:
-                #                 pi2[b][b+s][A] = probability
-                #                 zeta[(b, b+s, A)] = (m, B, C)
-
-                # for rule in model_se:      # for all A,B,C that A -> B C
-                #     A, B, C = rule
-
-
-                #     # if (b, m, B) not in pi:
-                #     #     continue
-
-                #     if B not in pi2[b][m]:
-                #         continue
-                    
-                #     # if (m, b+s, C) not in pi:
-                #     #     continue
-
-                #     if C not in pi2[m][b+s]:
-                #         continue
-
-                #     # probability = pi[(b, m, B)] * pi[(m, b+s, C)] * model_se[rule]
-                #     probability = pi2[b][m][B] * pi2[m][b+s][C] * model_se[rule]
-                    
-                #     # update pi
-
-                #     # if ((b, b+s, A) not in pi) or \
-                #     #        (probability > pi[(b, b+s, A)]):
-                #     #     pi[(b, b+s, A)] = probability
-                #     #     zeta[(b, b+s, A)] = (m, B, C) # backtracks
-
-                #     if A not in pi2[b][b+s] or \
-                #        pi2[b][b+s][A] < probability:
-                #         pi2[b][b+s][A] = probability
-                #         zeta[(b, b+s, A)] = (m, B, C)
-
                     
     print "loops:", (timeit.default_timer() - begin)                    
-    # for ii in pi2:
-    #     for jj in pi2[ii]:
-    #         for kk in pi2[ii][jj]:
-    #             print (ii, jj, idSymDict[kk]), '=', pi2[ii][jj][kk]
     
     begin = timeit.default_timer()
     # find initial rule
@@ -216,9 +144,6 @@ def cyk(in_string, newRules, model, S, symIdDict, idSymDict):
         # print idSymDict[rule[0]], '->', idSymDict[rule[1]]
         A = rule[1]
 
-        # if (0, n, A) not in pi:
-        #     continue
-        # prob = pi[(0, n, A)] * model[rule]
 
         if A not in pi2[0][n]:
             continue
@@ -250,7 +175,7 @@ def cyk(in_string, newRules, model, S, symIdDict, idSymDict):
 
 
 class Cyk_thread(threading.Thread):
-    def __init__(self, sentences, newRules, rulePack, symSet, symIdDict, idSymDict, resultSet):
+    def __init__(self, sentences, rulePack, symSet, symIdDict, idSymDict, resultSet):
         threading.Thread.__init__(self)
         self.sentences = sentences
         self.rules = rulePack
@@ -262,7 +187,7 @@ class Cyk_thread(threading.Thread):
             line = item[1]
             start = timeit.default_timer()
             print "\nprocessing sentence", item[0]
-            result = cyk(line, newRules, self.rules, self.symSet, symIdDict, idSymDict)
+            result = cyk(line, self.rules, self.symSet, symIdDict, idSymDict)
             duration = timeit.default_timer() - start
             
             self.resultSet.append((item[0], result, duration))
@@ -344,13 +269,6 @@ if __name__ == "__main__":
     topRules = {}
 
 
-    # print "newRule:"
-    # for rule in newRules:
-    #     if len(rule) == 2:
-    #         print idSymDict[rule[0]], '->', idSymDict[rule[1]], '=', newRules[rule]
-    #     else:
-    #         print idSymDict[rule[0]], '->', idSymDict[rule[1]], idSymDict[rule[2]], '=', newRules[rule]
-
     for rule in newRules:
         if len(rule) == 2:
             topRules[rule] = newRules[rule]
@@ -415,7 +333,7 @@ if __name__ == "__main__":
             sentences.append((j, lines[j]))
             total += 1
             
-        threads.append(Cyk_thread(sentences, newRules, rulePack, S, symIdDict, idSymDict, tmpResult))
+        threads.append(Cyk_thread(sentences, rulePack, S, symIdDict, idSymDict, tmpResult))
         
         resultSet.append(tmpResult)
 
