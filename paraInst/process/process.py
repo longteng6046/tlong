@@ -18,7 +18,7 @@ fd_des = open(desdir, 'w')
 for infile in fileList:
 
     # print infile
-    values = open(srcdir + infile).xreadlines()
+    values = open(srcdir + '/' + infile).xreadlines()
 
     # print >> fd_des, infile[:-4]
 
