@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-list = ['self.txt', 'freepooma.txt', 'parmetis.txt', 'petsc.txt']
+list = ['self.txt', 'petsc.txt', 'tao.txt', 'slepc.txt', 'together_l2.txt']
 
 funDir = {}
 
