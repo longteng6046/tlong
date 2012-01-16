@@ -84,7 +84,7 @@ rFlag = False
 oFlag = False
 sFlag = False
 dFlag = False
-diffFlag = True
+diffFlag = False
 aggFlag = False
 
 ## singple options/operations
