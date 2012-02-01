@@ -104,7 +104,7 @@ for pair in exchangeList:
         # print "bingo"
 
         # add include file
-        include_info = '#ifndef _TEST_INST_H\n#include "testinst.h"\n#endif\n'
+        include_info = '#ifndef _TEST_INST_H\n#include "testinst.h"\n#define _TEST_INST_H\n#endif\n'
         if not content.startswith(include_info):
             content = include_info + content
 
