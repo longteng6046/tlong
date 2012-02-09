@@ -40,7 +40,6 @@ infoList.sort()
 
 contentList = {} # opened info files
 for item in infoList:
-
     contentList[item] = open(item, 'r')
 
 # print contentList
@@ -67,7 +66,7 @@ funSum = {}
 brSum = {}
 
 # prefix list with default values.
-prefixList = ['/usr/home/tlong/apr/', '/home/tlong/new_workspace/apr/', '/home/tlong/openmpi/', '/usr/home/tlong/openmpi/', '/home/tlong/workspace/apache-httpd/','/home/tlong/workspace/openmp/']
+prefixList = ['/usr/home/tlong/apr/', '/home/tlong/new_workspace/apr/', '/home/tlong/openmpi/', '/usr/home/tlong/openmpi/', '/home/tlong/workspace/apache-httpd/','/home/tlong/workspace/openmp/', '/home/tlong/coverage_mpich_again/', '/usr/home/tlong/workspace/mpich/']
 
 # testList, indicating the path of test sources.
 testList = ['apr-1.4.2/test/', 'openmpi-1.4.3/test/']
@@ -403,10 +402,14 @@ for infoFile in infoList:
             else:
                 if key not in lineStat:
                     lineStat[key] = val
-                    lineStat_single[key] = 1
+                    if val != 0:
+                        lineStat_single[key] = 1
+                    else:
+                        lineStat_single[key] = 0
                 else:
                     lineStat[key] += val
-                    lineStat_single[key] += counter
+                    if val != 0:
+                        lineStat_single[key] += 1
 
 # function coverage
 for infoFile in infoList:
@@ -429,10 +432,14 @@ for infoFile in infoList:
             else:
                 if key not in funStat:
                     funStat[key] = val
-                    funStat_single[key] = 1
+                    if val != 0:
+                        funStat_single[key] = 1
+                    else:
+                        funStat_single[key] = 0
                 else:
                     funStat[key] += val
-                    funStat_single[key] += counter
+                    if val != 0:
+                        funStat_single[key] += 1
 
 # branch coverage
 for infoFile in infoList:
@@ -455,10 +462,14 @@ for infoFile in infoList:
             else:
                 if key not in brStat:
                     brStat[key] = val
-                    brStat_single[key] = 1
+                    if val != 0:
+                        brStat_single[key] = 1
+                    else:
+                        brStat_single[key] = 0
                 else:
                     brStat[key] += val
-                    brStat_single[key] += counter
+                    if val != 0:
+                        brStat_single[key] += 1
 
 
 ########################################
@@ -751,10 +762,12 @@ print r'''
 
 for i in range(0, len(infoList)):
     counter = 0
+
     for item in lineStat_single:
         if lineStat_single[item] == i:
             counter += 1
     cov = float(counter) / float(totalLine)
+
     print str(cov * 100) + '%', "lines are covered by", i, "packages."
 
 print ''
@@ -764,6 +777,7 @@ for i in range(0, len(infoList)):
         if funStat_single[item] == i:
             counter += 1
     cov = float(counter) / float(totalFun)
+
     print str(cov * 100) + '%', "functions are covered by", i, "packages."
 
 
@@ -774,6 +788,7 @@ for i in range(0, len(infoList)):
         if brStat_single[item] == i:
             counter += 1
     cov = float(counter) / float(totalBr)
+
     print str(cov * 100) + '%', "branches are covered by", i, "packages."
 
 
